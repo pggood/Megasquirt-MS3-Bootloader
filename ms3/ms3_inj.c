@@ -2498,7 +2498,7 @@ void main_fuel_calcs(long *lsum1, long *lsum2)
             (outpc.fuelload > ram4.idleve_load) &&
             (outpc.clt > ram4.idleve_clt) &&
             (((ram4.idle_special_ops & 0x0c) == 0) ||
-             (((ram4.idle_special_ops & 0x0c) == 0x04) && (outpc.vss1 < 20)) || // less that 2.0 ms-1
+             (((ram4.idle_special_ops & 0x0c) == 0x04) && (outpc.vss1 < 20)) || // less than 2.0 ms-1
              (((ram4.idle_special_ops & 0x0c) == 0x08) && (outpc.vss2 < 20)))) ||
              ((ram4.idleveadv_to_pid & IDLEVEADV_TO_PID_IDLEVE) &&
               (outpc.status2 & 0x80))

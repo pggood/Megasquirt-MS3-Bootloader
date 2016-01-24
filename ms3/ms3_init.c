@@ -187,7 +187,7 @@ void generic_adc_setup(volatile unsigned short **port, unsigned char feature_con
     if (pinsetting == 0) {    // MAP
         if ((portusage->ad0l[0]) && feature_conferr) {
             conf_err = feature_conferr;
-                        conf_err_feat = portusage->ad0l[0];
+            conf_err_feat = portusage->ad0l[0];
         } else {
             portusage->ad0l[0] = feature_num;
             *port = &ATD0DR0;
@@ -195,7 +195,7 @@ void generic_adc_setup(volatile unsigned short **port, unsigned char feature_con
     } else if (pinsetting == 1) {    // AN6
         if ((portusage->ad0l[6]) && feature_conferr) {
             conf_err = feature_conferr;
-                        conf_err_feat = portusage->ad0l[6];
+            conf_err_feat = portusage->ad0l[6];
         } else {
             portusage->ad0l[6] = feature_num;
             *port = &ATD0DR6;
@@ -203,7 +203,7 @@ void generic_adc_setup(volatile unsigned short **port, unsigned char feature_con
     } else if (pinsetting == 2) {     // AN7
         if ((portusage->ad0l[7]) && feature_conferr) {
             conf_err = feature_conferr;
-                        conf_err_feat = portusage->ad0l[7];
+            conf_err_feat = portusage->ad0l[7];
         } else {
             portusage->ad0l[7] = feature_num;
             *port = &ATD0DR7;
@@ -211,7 +211,7 @@ void generic_adc_setup(volatile unsigned short **port, unsigned char feature_con
     } else if (pinsetting == 3) {     // AN11
         if ((portusage->ad0h[3]) && feature_conferr) {
             conf_err = feature_conferr;
-                        conf_err_feat = portusage->ad0h[3];
+            conf_err_feat = portusage->ad0h[3];
         } else { 
             portusage->ad0h[3] = feature_num;
             *port = &ATD0DR11;
@@ -219,7 +219,7 @@ void generic_adc_setup(volatile unsigned short **port, unsigned char feature_con
     } else if (pinsetting == 4) {     // AN12
         if ((portusage->ad0h[4]) && feature_conferr) {
             conf_err = feature_conferr;
-                        conf_err_feat = portusage->ad0h[4];
+            conf_err_feat = portusage->ad0h[4];
         } else {
             portusage->ad0h[4] = feature_num;
             *port = &ATD0DR12;
@@ -227,7 +227,7 @@ void generic_adc_setup(volatile unsigned short **port, unsigned char feature_con
     } else if (pinsetting == 5) {     // AN13
         if ((portusage->ad0h[5]) && feature_conferr) {
             conf_err = feature_conferr;
-                        conf_err_feat = portusage->ad0h[5];
+            conf_err_feat = portusage->ad0h[5];
         } else {
             portusage->ad0h[5] = feature_num;
             *port = &ATD0DR13;
@@ -235,7 +235,7 @@ void generic_adc_setup(volatile unsigned short **port, unsigned char feature_con
     } else if (pinsetting == 6) {     // AN0
         if ((portusage->ad0l[0]) && feature_conferr) {
             conf_err = feature_conferr;
-                        conf_err_feat = portusage->ad0l[0];
+            conf_err_feat = portusage->ad0l[0];
         } else {
             portusage->ad0l[0] = feature_num;
             *port = &ATD0DR0;
@@ -244,7 +244,7 @@ void generic_adc_setup(volatile unsigned short **port, unsigned char feature_con
     } else if ((pinsetting >= 8) && (pinsetting <= 31)) {      // CAN ADCs
         if ((portusage->canadc[pinsetting - 8]) && feature_conferr) {
             conf_err = feature_conferr;
-                        conf_err_feat = portusage->canadc[pinsetting - 8];
+            conf_err_feat = portusage->canadc[pinsetting - 8];
         } else {
             portusage->canadc[pinsetting - 8] = feature_num;
             *port = (volatile short *)&datax1.adc[pinsetting - 8];
@@ -2453,8 +2453,8 @@ Typical digout list
         generic_digout_setup(&port_fanctl_out, &pin_fanctl_out, 74, ram4.fanctl_settings & 0x3f, 20);
 
         /* Make sure the output pin is off, wouldn't want fan on while cranking */
-        TURN_FAN_OFF();
-        if (!FAN_CONTROL_SETPOINTS_ARE_VALID) {
+        TURN_FAN_OFF_WITHOUT_DISABLING_INTS();
+        if (!FAN_CONTROL_SETPOINTS_ARE_VALID()) {
             conf_err = 111;
         }
     }
@@ -3320,6 +3320,7 @@ Typical digout list
 //    }
     tps0_auto = tps0_orig = ram4.tps0;  // auto-zeroing happens at the end of init
     first_adc = 1;
+    adc_init();
     get_adc(0, 7);
     first_adc = 0;
     if ((ram4.BaroOption & 0x03) < 2) {

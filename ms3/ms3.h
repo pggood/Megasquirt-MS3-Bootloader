@@ -2017,7 +2017,8 @@ void calc_divider(void) FAR_TEXTf9_ATTR;
 void cp_flash_ram(void);        // needs to be in non-banked RAM
 void ign_reset(void) FAR_TEXTf9_ATTR;
 void ign_kill(void) FAR_TEXTf9_ATTR;
-void get_adc(char chan1, char chan2) FAR_TEXTf2_ATTR;
+void adc_init(void) FAR_TEXTf9_ATTR; 
+void get_adc(char chan1, char chan2)FAR_TEXTf2_ATTR;
 #define ego_get_sample() get_adc(5, 6)
 int move_IACmotor(void);        // FAR_TEXTfc_ATTR;
 int barocor_eq(int baro) FAR_TEXTfc_ATTR;

@@ -124,7 +124,7 @@ void idle_ac_idleup(void)
                     ac_idleup_cl_targetadder = ram4.ac_idleup_cl_targetadder;
                     flagbyte16 &= ~FLAGBYTE16_AC_TPSHYST;
                     flagbyte16 &= ~FLAGBYTE16_AC_VSSHYST;
-		    flagbyte25 |= FLAGBYTE25_IDLE_TEMPDISABLE;
+                    flagbyte25 |= FLAGBYTE25_IDLE_TEMPDISABLE;
                     return;
                 }
 
@@ -166,18 +166,12 @@ void fan_ctl_idleup(void)
     if (ram4.fanctl_settings & 0x80) {
         if ((ram4.fanctl_opt2 & 0x01) == 0) { 
             if ((outpc.rpm < 3) || (flagbyte2 & flagbyte2_crank_ok)) { // don't run when engine stalled or just after start
-                SSEM0SEI;
-                TURN_FAN_OFF();
-                CSEM0CLI;
-                outpc.status6 &= ~STATUS6_FAN;
+                TURN_FAN_OFF_UPDATE_STATUS();
                 return;
             }
         } else { // do
             if ((outpc.engine & ENGINE_CRANK) || (outpc.batt < 100)) {
-                SSEM0SEI;
-                TURN_FAN_OFF(); // but off when cranking
-                CSEM0CLI;
-                outpc.status6 &= ~STATUS6_FAN;
+                TURN_FAN_OFF_UPDATE_STATUS(); // but off when cranking
                 return;
             }
         }
@@ -208,14 +202,11 @@ void fan_ctl_idleup(void)
             }
 
             if (fan_disable) {
-                SSEM0SEI;
-                TURN_FAN_OFF();
-                CSEM0CLI;
-                outpc.status6 &= ~STATUS6_FAN;
+                TURN_FAN_OFF_UPDATE_STATUS();
             }
         }
 
-        if (COOLANT_TEMPERATURE_IS_HIGH || AC_NEEDS_FAN) {
+        if (COOLANT_TEMPERATURE_IS_HIGH() || AC_NEEDS_FAN()) {
             /* Fan is required. */ 
             if (last_fan_state == 0) {
                 last_fan_state = 1;
@@ -229,16 +220,12 @@ void fan_ctl_idleup(void)
                 }
             }
             else if ((fan_idleup_timer >= ram4.fanctl_idleup_delay) && (!fan_disable)) {
-                SSEM0SEI;
-                TURN_FAN_ON();
-                CSEM0CLI;
-                outpc.status6 |= STATUS6_FAN;
+                TURN_FAN_ON_UPDATE_STATUS();
                 flagbyte16 |= FLAGBYTE16_FAN_ENABLE;
                 flagbyte25 &= ~FLAGBYTE25_IDLE_TEMPDISABLE;
             }
         }
-
-        if (COOLANT_TEMPERATURE_IS_LOW && !AC_NEEDS_FAN) {
+        else if (COOLANT_TEMPERATURE_IS_LOW() && !AC_NEEDS_FAN()) {
             /* Fan is not required */ 
             if (last_fan_state == 1) {
                 last_fan_state = 0;
@@ -249,10 +236,7 @@ void fan_ctl_idleup(void)
                 }
             }
             else if (fan_idleup_timer >= ram4.fanctl_idleup_delay) {
-                SSEM0SEI;
-                TURN_FAN_OFF();
-                CSEM0CLI;
-                outpc.status6 &= ~STATUS6_FAN;
+                TURN_FAN_OFF_UPDATE_STATUS();
                 flagbyte16 &= ~FLAGBYTE16_FAN_ENABLE;
             }
         }

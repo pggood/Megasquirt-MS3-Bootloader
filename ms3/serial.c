@@ -1552,7 +1552,9 @@ SERIAL_OK:;
         *(unsigned char*)0x3ff8 = 'o';
         *(unsigned char*)0x3ff9 = 'r';
         COPCTL = 0x41;
-        while (1) { ; };
+        while (1) {
+            /* empty block */
+        }
 
     }
 

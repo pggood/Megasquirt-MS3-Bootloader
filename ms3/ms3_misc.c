@@ -158,7 +158,24 @@
  *
 */
 #include "ms3.h"
+#include "sliding_window_average.h"
 
+#define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
+
+/*  
+ * XXX. Any special attributes required for the averaging
+ * contexts? 
+*/
+static sliding_average_ctx_st mat_averaging;
+static sliding_average_ctx_st clt_averaging; 
+static sliding_average_ctx_st batt_averaging; 
+
+void adc_init(void)
+{
+    sliding_average_init(&mat_averaging, mat_data, ARRAY_SIZE(mat_data));
+    sliding_average_init(&clt_averaging, clt_data, ARRAY_SIZE(clt_data));
+    sliding_average_init(&batt_averaging, batt_data, ARRAY_SIZE(batt_data));
+}
 /**************************************************************************
  **
  ** Read main sensor inputs
@@ -193,24 +210,7 @@ void get_adc(char chan1, char chan2)
 
         } else if ((chan == 1) && (!burnstat) && (!ltt_fl_state)) {
             int i;
-            unsigned int avg_adc;
-            // sliding window
-            avg_adc = 0;
-            for (i = MAT_N - 1 ; i > 0 ; i--) {
-                mat_data[i] = mat_data[i-1];
-                avg_adc += mat_data[i];
-            }
-            mat_data[0] = ATD0DR1;
-            avg_adc += mat_data[0];
-
-            if (first_adc) { // fill with same value
-                for (i = MAT_N - 1 ; i > 0 ; i--) {
-                    mat_data[i] = mat_data[0];
-                }
-                avg_adc = mat_data[0];
-            } else {
-                avg_adc /= MAT_N;
-            }
+            unsigned int avg_adc = sliding_average_update(&mat_averaging, ATD0DR1);
 
             //        adcval = (long)ram4.mat0 +
             //          ((long)ram4.matmult * matfactor_table[ATD0DR1]) / 100; // deg F or C x 10
@@ -248,24 +248,8 @@ void get_adc(char chan1, char chan2)
 
         } else if ((chan == 2) && (!burnstat) && (!ltt_fl_state)) {
             int i;
-            unsigned int avg_adc;
-            // sliding window
-            avg_adc = 0;
-            for (i = CLT_N - 1 ; i > 0 ; i--) {
-                clt_data[i] = clt_data[i-1];
-                avg_adc += clt_data[i];
-            }
-            clt_data[0] = ATD0DR2;
-            avg_adc += clt_data[0];
+            unsigned int avg_adc = sliding_average_update(&clt_averaging, ATD0DR2);
 
-            if (first_adc) { // fill with same value
-                for (i = CLT_N - 1 ; i > 0 ; i--) {
-                    clt_data[i] = clt_data[0];
-                }
-                avg_adc = clt_data[0];
-            } else {
-                avg_adc /= CLT_N;
-            }
             //        adcval = (long)ram4.clt0 +
             //          ((long)ram4.cltmult * cltfactor_table[ATD0DR2]) / 100; // deg F or C x 10
             GPAGE = 0x10;
@@ -331,24 +315,7 @@ void get_adc(char chan1, char chan2)
             }
         } else if (chan == 4) {
             int i;
-            unsigned int avg_adc;
-            // sliding window
-            avg_adc = 0;
-            for (i = BATT_N - 1 ; i > 0 ; i--) {
-                batt_data[i] = batt_data[i-1];
-                avg_adc += batt_data[i];
-            }
-            batt_data[0] = ATD0DR4;
-            avg_adc += batt_data[0];
-
-            if (first_adc) { // fill with same value
-                for (i = BATT_N - 1 ; i > 0 ; i--) {
-                    batt_data[i] = batt_data[0];
-                }
-                avg_adc = batt_data[0];
-            } else {
-                avg_adc /= BATT_N;
-            }
+            unsigned int avg_adc = sliding_average_update(&batt_averaging, ATD0DR4);
             //        adcval = (long)ram4.batt0 +
             //          ((long)(ram4.battmax - ram4.batt0) * ATD0DR4) / 1023; // V x 10
             __asm__ __volatile__("ldd    %1\n"

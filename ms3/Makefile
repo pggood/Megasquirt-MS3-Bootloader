@@ -47,7 +47,7 @@ LDFLAGS = -Wl,-defsym,vectors_addr=0xff10,-m,m68hc12elfb,-T,m68hc12elfb.x -Wl,--
 CSRCS=ms3_can.c ms3_can_isr.c ms3_ego.c ms3_ign.c ms3_ign_wheel.c\
       ms3_main.c ms3_misc.c ms3_boost.c \
       premain.c ms3_init.c sigs.c ms3_ign_in.c ms3_inj.c ms3_idle.c\
-      ms3_user.c sd_card.c compress.c ms3_pid.c serial.c
+      ms3_user.c sd_card.c compress.c ms3_pid.c serial.c sliding_window_average/sliding_window_average.c
 
 ASRCS=ms3_conferr.s \
       ms3_burnfactor.s isr_sci.s isr_rtc.s ms3_asm.s \
