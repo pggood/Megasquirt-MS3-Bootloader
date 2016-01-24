@@ -61,19 +61,22 @@
 */
 
 #include "ms3.h"
+#include "fan_control.h"
+
+#define NUM_EEPROM_WORDS 512
+#define ERASED_VALUE    0xffff
 
 void ck_ee_erased(void)
 {
     unsigned int *addr = (unsigned int *) 0x800;
-    unsigned int x, result = 0;
+    unsigned int x;
 
-    for (x = 0; x < 512; x++) {
-        if (*addr == 0xffff) {
-            result++;
+    for (x = 0; x < NUM_EEPROM_WORDS; x++, addr++) {
+        if (*addr != ERASED_VALUE) {
+            break;
         }
-        addr++;                 // next word
     }
-    if (result == 512) {
+    if (x == 512) { // All words are erased
         conf_err = 49;
     }
 }
@@ -2450,8 +2453,8 @@ Typical digout list
         generic_digout_setup(&port_fanctl_out, &pin_fanctl_out, 74, ram4.fanctl_settings & 0x3f, 20);
 
         /* Make sure the output pin is off, wouldn't want fan on while cranking */
-        *port_fanctl_out &= ~pin_fanctl_out;
-        if (ram4.fanctl_offtemp >= ram4.fanctl_ontemp) {
+        TURN_FAN_OFF();
+        if (!FAN_CONTROL_SETPOINTS_ARE_VALID) {
             conf_err = 111;
         }
     }

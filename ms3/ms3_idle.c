@@ -46,6 +46,7 @@
 */
 
 #include "ms3.h"
+#include "fan_control.h"
 
 void idle_voltage_compensation(void)
 {
@@ -133,7 +134,7 @@ void idle_ac_idleup(void)
                     CSEM0CLI;
                     outpc.status7 |= STATUS7_ACOUT;
                     flagbyte16 |= FLAGBYTE16_AC_ENABLE;
-		    flagbyte25 &= ~FLAGBYTE25_IDLE_TEMPDISABLE;
+                    flagbyte25 &= ~FLAGBYTE25_IDLE_TEMPDISABLE;
                 }
             }
         } else {
@@ -166,7 +167,7 @@ void fan_ctl_idleup(void)
         if ((ram4.fanctl_opt2 & 0x01) == 0) { 
             if ((outpc.rpm < 3) || (flagbyte2 & flagbyte2_crank_ok)) { // don't run when engine stalled or just after start
                 SSEM0SEI;
-                *port_fanctl_out &= ~pin_fanctl_out;
+                TURN_FAN_OFF();
                 CSEM0CLI;
                 outpc.status6 &= ~STATUS6_FAN;
                 return;
@@ -174,7 +175,7 @@ void fan_ctl_idleup(void)
         } else { // do
             if ((outpc.engine & ENGINE_CRANK) || (outpc.batt < 100)) {
                 SSEM0SEI;
-                *port_fanctl_out &= ~pin_fanctl_out; // but off when cranking
+                TURN_FAN_OFF(); // but off when cranking
                 CSEM0CLI;
                 outpc.status6 &= ~STATUS6_FAN;
                 return;
@@ -208,17 +209,14 @@ void fan_ctl_idleup(void)
 
             if (fan_disable) {
                 SSEM0SEI;
-                *port_fanctl_out &= ~pin_fanctl_out;
+                TURN_FAN_OFF();
                 CSEM0CLI;
                 outpc.status6 &= ~STATUS6_FAN;
             }
         }
 
-        /* Is CLT above threshold? */
-        /* For AC button, only turn on fan if the user wants the fan on with AC */
-        if ((outpc.clt >= ram4.fanctl_ontemp) || ((last_acbutton_state == 1) && 
-                                                   ram4.fan_ctl_settings2 & 0x01)) {
-            /* Not disabled, so start timers and such. */
+        if (COOLANT_TEMPERATURE_IS_HIGH || AC_NEEDS_FAN) {
+            /* Fan is required. */ 
             if (last_fan_state == 0) {
                 last_fan_state = 1;
                 fan_idleup_timer = 0;
@@ -227,23 +225,21 @@ void fan_ctl_idleup(void)
                     fan_idleup_cl_targetadder = ram4.fan_idleup_cl_targetadder;
                     flagbyte16 &= ~FLAGBYTE16_FAN_TPSHYST;
                     flagbyte16 &= ~FLAGBYTE16_FAN_VSSHYST;
-		    flagbyte25 |= FLAGBYTE25_IDLE_TEMPDISABLE;
+                    flagbyte25 |= FLAGBYTE25_IDLE_TEMPDISABLE;
                 }
-                return;
             }
-
-            if ((fan_idleup_timer >= ram4.fanctl_idleup_delay) && (!fan_disable)) {
+            else if ((fan_idleup_timer >= ram4.fanctl_idleup_delay) && (!fan_disable)) {
                 SSEM0SEI;
-                *port_fanctl_out |= pin_fanctl_out;
+                TURN_FAN_ON();
                 CSEM0CLI;
                 outpc.status6 |= STATUS6_FAN;
                 flagbyte16 |= FLAGBYTE16_FAN_ENABLE;
-		flagbyte25 &= ~FLAGBYTE25_IDLE_TEMPDISABLE;
+                flagbyte25 &= ~FLAGBYTE25_IDLE_TEMPDISABLE;
             }
         }
 
-        if ((outpc.clt <= ram4.fanctl_offtemp) && ((last_acbutton_state == 0) || (!(ram4.fan_ctl_settings2 & 0x01)))) {
-            /* cool enough and AC off if linked to fan */
+        if (COOLANT_TEMPERATURE_IS_LOW && !AC_NEEDS_FAN) {
+            /* Fan is not required */ 
             if (last_fan_state == 1) {
                 last_fan_state = 0;
                 fan_idleup_timer = 0;
@@ -251,12 +247,10 @@ void fan_ctl_idleup(void)
                     fan_idleup_adder = 0;
                     fan_idleup_cl_targetadder = 0;
                 }
-                return;
             }
-
-            if (fan_idleup_timer >= ram4.fanctl_idleup_delay) {
+            else if (fan_idleup_timer >= ram4.fanctl_idleup_delay) {
                 SSEM0SEI;
-                *port_fanctl_out &= ~pin_fanctl_out;
+                TURN_FAN_OFF();
                 CSEM0CLI;
                 outpc.status6 &= ~STATUS6_FAN;
                 flagbyte16 &= ~FLAGBYTE16_FAN_ENABLE;
