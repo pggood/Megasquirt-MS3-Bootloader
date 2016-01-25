@@ -88,7 +88,7 @@ long generic_ideal_pid_routine(int min, int max, int targ, int raw_PV,
     error = SP - PV;
 
     if (config & PID_INIT) {
-	*I_term_sum = 0;
+        *I_term_sum = 0;
     }
 
     *I_term_sum += error;
@@ -102,7 +102,7 @@ long generic_ideal_pid_routine(int min, int max, int targ, int raw_PV,
     } 
 
     if (*I_term_sum > tmp1) {
-	*I_term_sum = tmp1;
+        *I_term_sum = tmp1;
     }
 
     tmp1 = ((bias - minoutput) * (long)outmult * 100) / (long)set_Ki;
@@ -137,7 +137,7 @@ void generic_pid()
             if (flagbyte22 & (twopow[i])) {
                 int load, target, PV;
                 long pidout;
-                char pidflags = PID_TYPE_C, ctmp;
+                char pidflags, ctmp;
 
                 DISABLE_INTERRUPTS;
                 flagbyte22 &= ~(twopow[i]);
@@ -162,8 +162,6 @@ void generic_pid()
                 ctmp = ram_window.pg27.generic_pid_flags[i] & GENERIC_PID_TYPE;
                 if (ctmp == GENERIC_PID_TYPE_B) {
                     pidflags = PID_TYPE_B;
-                } else if (ctmp == GENERIC_PID_TYPE_C) {
-                    pidflags = PID_TYPE_C;
                 } else {
                     pidflags = PID_TYPE_C;
                 }

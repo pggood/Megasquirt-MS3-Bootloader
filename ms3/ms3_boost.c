@@ -235,9 +235,8 @@ void boost_ctl_cl(int channel, int lowerlimit, int Kp, int Ki, int Kd, unsigned 
     }
 
     if (!boost_PID_enabled[channel]) {
-        flags |= PID_INIT;
         boost_PID_enabled[channel] = 1;
-        boost_ctl_duty[channel] = start_duty;
+        flags = PID_INIT;
     }
 
     tmp1 = start_duty + (((long) (generic_ideal_pid_routine(0, sensitivity,
