@@ -14,11 +14,13 @@ unsigned int sliding_average_update(sliding_average_ctx_st * const pctx, unsigne
     }
     pctx->samples[pctx->current_index] = new_value;
     pctx->sum_of_samples += pctx->samples[pctx->current_index];
-    pctx->current_index = (pctx->current_index + 1) % pctx->num_samples;
+    pctx->current_index++;
+    if (pctx->current_index >= pctx->num_samples)
+    {
+        pctx->current_index = 0;
+    }
 
-    average = pctx->sum_of_samples / pctx->samples_inserted;
-
-    return average;
+    return pctx->sum_of_samples / pctx->samples_inserted;
 }
 
 void sliding_average_init(sliding_average_ctx_st * const pctx, unsigned int * const samples, size_t const num_samples)
