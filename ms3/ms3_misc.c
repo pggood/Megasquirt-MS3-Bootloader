@@ -6269,7 +6269,7 @@ void alternator(void)
 
             t = ram5.sensor_trans[tmp_opt];
             if (((t == 3) || (t == 4)) && (ram5.sensor_temp & 0x01)) {
-                // if using CLT, MAT sensor tranform and in degC need to reverse calc back to degF
+                // if using CLT, MAT sensor transform and in degC need to reverse calc back to degF
                 temperature = ((temperature * 9) / 5) + 320;
             }
 

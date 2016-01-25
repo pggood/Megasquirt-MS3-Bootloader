@@ -10,11 +10,12 @@
 
 #define FAN_CONTROL_SETPOINTS_ARE_VALID()  (ram4.fanctl_offtemp < ram4.fanctl_ontemp)
 
+#define BIT_ON(variable, bit) (variable) |= (bit)
+#define BIT_OFF(variable, bit) (variable) &= ~(bit)
+
 #define GPIO_ON(port, pin)  *(port) |= (pin)
 #define GPIO_OFF(port, pin) *(port) &= ~(pin)
 
-#define BIT_ON(variable, bit) (variable) |= (bit)
-#define BIT_OFF(variable, bit) (variable) &= ~(bit)
 
 #define SET_FAN_STATUS_ON() BIT_ON(outpc.status6, STATUS6_FAN)
 #define SET_FAN_STATUS_OFF() BIT_OFF(outpc.status6, STATUS6_FAN)
