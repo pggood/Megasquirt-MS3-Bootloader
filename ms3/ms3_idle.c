@@ -47,6 +47,8 @@
 
 #include "ms3.h"
 #include "fan_control.h"
+#include "idle_control.h"
+#include "ac_control.h"
 
 void idle_voltage_compensation(void)
 {
@@ -58,10 +60,9 @@ void idle_ac_idleup(void)
 {
     if (ram4.ac_idleup_settings & 0x80) {
 
-        if(outpc.rpm < ram4.ac_idleup_min_rpm) {
-            SSEM0SEI;
-            *port_ac_out &= ~pin_ac_out;
-            CSEM0CLI;
+        if (AC_CONTROL_RPM_TOO_LOW())
+        {
+            TURN_AC_OFF();
             ac_time_since_last_on = 0;
             return;
         }
@@ -104,10 +105,7 @@ void idle_ac_idleup(void)
                     if (outpc.status7 & STATUS7_ACOUT) {
                         ac_time_since_last_on = 0;
                     }
-                    SSEM0SEI;
-                    *port_ac_out &= ~pin_ac_out;
-                    CSEM0CLI;
-                    outpc.status7 &= ~STATUS7_ACOUT;
+                    TURN_AC_OFF_UPDATE_STATUS();
                     return;
                 }
             }
@@ -129,10 +127,7 @@ void idle_ac_idleup(void)
                 }
 
                 if (ac_idleup_timer >= ram4.ac_idleup_delay) {
-                    SSEM0SEI;
-                    *port_ac_out |= pin_ac_out;
-                    CSEM0CLI;
-                    outpc.status7 |= STATUS7_ACOUT;
+                    TURN_AC_ON_UPDATE_STATUS();
                     flagbyte16 |= FLAGBYTE16_AC_ENABLE;
                     flagbyte25 &= ~FLAGBYTE25_IDLE_TEMPDISABLE;
                 }
@@ -149,10 +144,7 @@ void idle_ac_idleup(void)
             }
 
             if (ac_idleup_timer >= ram4.ac_idleup_delay) {
-                SSEM0SEI;
-                *port_ac_out &= ~pin_ac_out;
-                CSEM0CLI;
-                outpc.status7 &= ~STATUS7_ACOUT;
+                TURN_AC_OFF_UPDATE_STATUS();
                 flagbyte16 &= ~FLAGBYTE16_AC_ENABLE;
             }
         }
@@ -206,12 +198,15 @@ void fan_ctl_idleup(void)
             }
         }
 
-        if (COOLANT_TEMPERATURE_IS_HIGH() || AC_NEEDS_FAN()) {
-            /* Fan is required. */ 
-            if (last_fan_state == 0) {
+        if (FAN_CONTROL_COOLANT_TEMPERATURE_IS_HIGH() || AC_NEEDS_FAN())
+        {
+            /* Fan is required. */
+            if (last_fan_state == 0)
+            {
                 last_fan_state = 1;
                 fan_idleup_timer = 0;
-                if ((ram4.fanctl_settings & 0x40) || (ram4.ac_idleup_settings & 0x80)) {
+                if ((ram4.fanctl_settings & 0x40) || (ram4.ac_idleup_settings & 0x80))
+                {
                     fan_idleup_adder = ram4.fanctl_idleup_adder;
                     fan_idleup_cl_targetadder = ram4.fan_idleup_cl_targetadder;
                     flagbyte16 &= ~FLAGBYTE16_FAN_TPSHYST;
@@ -219,23 +214,28 @@ void fan_ctl_idleup(void)
                     flagbyte25 |= FLAGBYTE25_IDLE_TEMPDISABLE;
                 }
             }
-            else if ((fan_idleup_timer >= ram4.fanctl_idleup_delay) && (!fan_disable)) {
+            else if ((fan_idleup_timer >= ram4.fanctl_idleup_delay) && (!fan_disable))
+            {
                 TURN_FAN_ON_UPDATE_STATUS();
                 flagbyte16 |= FLAGBYTE16_FAN_ENABLE;
                 flagbyte25 &= ~FLAGBYTE25_IDLE_TEMPDISABLE;
             }
         }
-        else if (COOLANT_TEMPERATURE_IS_LOW() && !AC_NEEDS_FAN()) {
-            /* Fan is not required */ 
-            if (last_fan_state == 1) {
+        else if (FAN_CONTROL_COOLANT_TEMPERATURE_IS_LOW() && !AC_NEEDS_FAN())
+        {
+            /* Fan is not required */
+            if (last_fan_state == 1)
+            {
                 last_fan_state = 0;
                 fan_idleup_timer = 0;
-                if (ram4.fanctl_settings & 0x40) {
+                if (ram4.fanctl_settings & 0x40)
+                {
                     fan_idleup_adder = 0;
                     fan_idleup_cl_targetadder = 0;
                 }
             }
-            else if (fan_idleup_timer >= ram4.fanctl_idleup_delay) {
+            else if (fan_idleup_timer >= ram4.fanctl_idleup_delay)
+            {
                 TURN_FAN_OFF_UPDATE_STATUS();
                 flagbyte16 &= ~FLAGBYTE16_FAN_ENABLE;
             }
@@ -314,14 +314,13 @@ void idle_test_mode(void)
 
 void idle_on_off(void)
 {
-    if (outpc.clt < (ram4.FastIdle - ram4.IdleHyst)) {
-        SSEM0SEI;
-        *port_idleonoff |= pin_idleonoff;
-        CSEM0CLI;
-    } else if (outpc.clt > ram4.FastIdle) {
-        SSEM0SEI;
-        *port_idleonoff &= ~pin_idleonoff;
-        CSEM0CLI;
+    if (IDLE_CONTROL_COOLANT_TEMPERATURE_IS_LOW())
+    {
+        TURN_FAST_IDLE_ON();
+    }
+    else if (IDLE_CONTROL_COOLANT_TEMPERATURE_IS_HIGH())
+    {
+        TURN_FAST_IDLE_OFF();
     }
 }
 
@@ -381,10 +380,10 @@ void idle_iac_warmup(void)
         }
 
         if (ac_idleup_adder > 0) {
-            pos += ac_idleup_adder;
+            pos += ac_idleup_adder; // XXX can the adder ever go -ve? If not, just add the adder in without doing the test
         }
         if (fan_idleup_adder > 0) {
-            pos += fan_idleup_adder;
+            pos += fan_idleup_adder; // XXX can the adder ever go -ve? If not, just add the adder in without doing the test
         }
     }
 
@@ -392,11 +391,10 @@ void idle_iac_warmup(void)
 
     if (outpc.iacstep != IACmotor_pos) {
         // move IAC motor to new step position
-        if (IdleCtl != 4) {
-            if (move_IACmotor())
-                last_iacclt = outpc.clt;
-        } else {
-            (void)move_IACmotor();
+        int const move_IACmotor_result = move_IACmotor();
+
+        if (IdleCtl == 4 || move_IACmotor_result)
+        {
             last_iacclt = outpc.clt;
         }
     }
@@ -440,22 +438,21 @@ void idle_pwm_warmup(void)
         }
 
         if (ac_idleup_adder > 0) {
-            tmp2 += ac_idleup_adder;
+            tmp2 += ac_idleup_adder; // XXX can the adder ever go -ve? If not, just add the adder in without doing the test
         }
         if (fan_idleup_adder > 0) {
-            tmp2 += fan_idleup_adder;
+            tmp2 += fan_idleup_adder; // XXX can the adder ever go -ve? If not, just add the adder in without doing the test
         }
         tmp2 += idle_voltage_comp;
         tmp2 += datax1.IdleAdj;  /* Apply whole of remote adjustment */
 
         //check range
         if (tmp2 > 255) {
-            IACmotor_pos = 255;
+            tmp2 = 255;
         } else if (tmp2 < 0) {
-            IACmotor_pos = 0;
-        } else {
-            IACmotor_pos = tmp2;
-        }
+            tmp2 = 0;
+        } 
+        IACmotor_pos = tmp2;
         (void)move_IACmotor();
     }
 }
