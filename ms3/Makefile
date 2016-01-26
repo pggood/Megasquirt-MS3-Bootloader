@@ -59,7 +59,7 @@ XSRCS=xgate.s
 SLIDING_WINDOW_AVERAGE_SRCS=sliding_window_average/sliding_window_average.c
 SLIDING_WINDOW_AVERAGE_OBJS=$(SLIDING_WINDOW_AVERAGE_SRCS:.c=.o)
 
-OBJS=$(CSRCS:.c=.o) $(SLIDING_WINDOW_AVERAGE_OBJS)
+OBJS=$(CSRCS:.c=.o)
 AOBJS= $(ASRCS:.s=.o)
 XOBJS= $(XSRCS:.s=.o)
 
@@ -136,8 +136,8 @@ $(OBJS): %.o: %.c cltfactor.inc egofactor.inc matfactor.inc hcs12xedef.h ms3.h h
 $(SLIDING_WINDOW_AVERAGE_OBJS): %.o: %.c sliding_window_average/sliding_window_average.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-ms3.elf: $(XOBJS) $(OBJS) $(AOBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o ms3.elf $(XOBJS) $(OBJS) $(AOBJS)
+ms3.elf: $(XOBJS) $(OBJS) $(AOBJS) $(SLIDING_WINDOW_AVERAGE_OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o ms3.elf $(XOBJS) $(OBJS) $(AOBJS) $(SLIDING_WINDOW_AVERAGE_OBJS)
 
 #note vectors at 0x7f_ef10 when using monitor
 ms3.s19: ms3.elf
