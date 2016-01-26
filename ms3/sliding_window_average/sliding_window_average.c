@@ -2,8 +2,6 @@
 
 unsigned int sliding_average_update(sliding_average_ctx_st * const pctx, unsigned int const new_value)
 {
-    unsigned int average;
-
     if (pctx->samples_inserted < pctx->num_samples)
     {
         pctx->samples_inserted++;

@@ -6,7 +6,7 @@
 #define COOLANT_TEMPERATURE_IS_HIGH() (outpc.clt >= ram4.fanctl_ontemp)
 #define COOLANT_TEMPERATURE_IS_LOW() (outpc.clt <= ram4.fanctl_offtemp)
 /* For AC button, only turn on fan if the user wants the fan on with AC */
-#define AC_NEEDS_FAN() ((last_acbutton_state == 1) && ram4.fan_ctl_settings2 & 0x01)
+#define AC_NEEDS_FAN() ((last_acbutton_state == 1) && (ram4.fan_ctl_settings2 & 0x01))
 
 #define FAN_CONTROL_SETPOINTS_ARE_VALID()  (ram4.fanctl_offtemp < ram4.fanctl_ontemp)
 
@@ -29,8 +29,8 @@
 
 #define TURN_FAN_OFF_UPDATE_STATUS() \
                     do { \
-                        TURN_FAN_OFF();
-                        SET_FAN_STATUS_OFF();
+                        TURN_FAN_OFF(); \
+                        SET_FAN_STATUS_OFF(); \
                     } while (0)
 
 #define TURN_FAN_OFF_WITHOUT_DISABLING_INTS() \
@@ -48,8 +48,8 @@
 
 #define TURN_FAN_ON_UPDATE_STATUS() \
                     do { \
-                        TURN_FAN_ON();
-                        SET_FAN_STATUS_ON();
+                        TURN_FAN_ON(); \
+                        SET_FAN_STATUS_ON(); \
                     } while (0)
 
 #endif /* __FAN_CONTROL_H__ */

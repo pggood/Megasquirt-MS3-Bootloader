@@ -112,7 +112,7 @@ long generic_ideal_pid_routine(int min, int max, int targ, int raw_PV,
     }
 
     if (*I_term_sum < -tmp1) {
-	*I_term_sum = -tmp1;
+        *I_term_sum = -tmp1;
     }
 
     pid_deriv = error - *last_error;

@@ -39,7 +39,7 @@ SED     = sed
 ECHO    = /bin/echo
 CAT     = cat
 
-CFLAGS  = -g -Wall -Werror -Wsign-compare -Wshadow -O -fomit-frame-pointer -m9s12x -mshort -msoft-reg-count=5 -mauto-incdec -fsigned-char -Wa,-mm9s12x
+CFLAGS  = -g -Wall -Werror -Wsign-compare -Wshadow -O -fomit-frame-pointer -m9s12x -mshort -msoft-reg-count=5 -mauto-incdec -fsigned-char -Wa,-mm9s12x -I./sliding_window_average
 XFLAGS  = -g -Wall -Werror -O -fomit-frame-pointer -m9s12xg -mshort -msoft-reg-count=5 -mauto-incdec -fsigned-char -Wa,-mxgate,--xgate-ramoffset
 
 LDFLAGS = -Wl,-defsym,vectors_addr=0xff10,-m,m68hc12elfb,-T,m68hc12elfb.x -Wl,--no-warn-mismatch
@@ -47,7 +47,7 @@ LDFLAGS = -Wl,-defsym,vectors_addr=0xff10,-m,m68hc12elfb,-T,m68hc12elfb.x -Wl,--
 CSRCS=ms3_can.c ms3_can_isr.c ms3_ego.c ms3_ign.c ms3_ign_wheel.c\
       ms3_main.c ms3_misc.c ms3_boost.c \
       premain.c ms3_init.c sigs.c ms3_ign_in.c ms3_inj.c ms3_idle.c\
-      ms3_user.c sd_card.c compress.c ms3_pid.c serial.c sliding_window_average/sliding_window_average.c
+      ms3_user.c sd_card.c compress.c ms3_pid.c serial.c
 
 ASRCS=ms3_conferr.s \
       ms3_burnfactor.s isr_sci.s isr_rtc.s ms3_asm.s \
@@ -56,7 +56,10 @@ ASRCS=ms3_conferr.s \
 
 XSRCS=xgate.s
 
-OBJS=$(CSRCS:.c=.o)
+SLIDING_WINDOW_AVERAGE_SRCS=sliding_window_average/sliding_window_average.c
+SLIDING_WINDOW_AVERAGE_OBJS=$(SLIDING_WINDOW_AVERAGE_SRCS:.c=.o)
+
+OBJS=$(CSRCS:.c=.o) $(SLIDING_WINDOW_AVERAGE_OBJS)
 AOBJS= $(ASRCS:.s=.o)
 XOBJS= $(XSRCS:.s=.o)
 
@@ -130,6 +133,9 @@ $(XOBJS): %.o: %.s ms3h_defines.inc
 $(OBJS): %.o: %.c cltfactor.inc egofactor.inc matfactor.inc hcs12xedef.h ms3.h hcs12xedef.inc maffactor.inc ms3_structs.inc ms3h.inc ms3_main_vars.h ms3_defines.h
 	$(CC) $(CFLAGS) -c $<
 
+$(SLIDING_WINDOW_AVERAGE_OBJS): %.o: %.c sliding_window_average/sliding_window_average.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
 ms3.elf: $(XOBJS) $(OBJS) $(AOBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o ms3.elf $(XOBJS) $(OBJS) $(AOBJS)
 
@@ -154,6 +160,6 @@ ms3.dmp: ms3.elf
 .PHONY: clean
 clean:
 	$(RM)  ms3.elf ms3*.s19 ms3.dmp ms3.map *~ ms3_main_vars.h ms3_defines.h ms3h_defines.inc ms3*.ini
-	$(RM) $(OBJS) $(AOBJS) $(XOBJS)
+	$(RM) $(OBJS) $(AOBJS) $(XOBJS) $(SLIDING_WINDOW_AVERAGE_OBJS)
 	$(RM) -r release
 	$(RM) opt.h

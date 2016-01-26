@@ -209,7 +209,6 @@ void get_adc(char chan1, char chan2)
                                  :"d", "x");
 
         } else if ((chan == 1) && (!burnstat) && (!ltt_fl_state)) {
-            int i;
             unsigned int avg_adc = sliding_average_update(&mat_averaging, ATD0DR1);
 
             //        adcval = (long)ram4.mat0 +
@@ -247,7 +246,6 @@ void get_adc(char chan1, char chan2)
 
 
         } else if ((chan == 2) && (!burnstat) && (!ltt_fl_state)) {
-            int i;
             unsigned int avg_adc = sliding_average_update(&clt_averaging, ATD0DR2);
 
             //        adcval = (long)ram4.clt0 +
@@ -314,7 +312,6 @@ void get_adc(char chan1, char chan2)
                  :"d", "x");
             }
         } else if (chan == 4) {
-            int i;
             unsigned int avg_adc = sliding_average_update(&batt_averaging, ATD0DR4);
             //        adcval = (long)ram4.batt0 +
             //          ((long)(ram4.battmax - ram4.batt0) * ATD0DR4) / 1023; // V x 10
