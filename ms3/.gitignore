@@ -1,0 +1,9 @@
+*.o
+*.s19
+*.elf
+
+/ms3.ini
+/ms3_defines.h
+/ms3_main_vars.h
+/ms3h_defines.inc
+/opt.h
