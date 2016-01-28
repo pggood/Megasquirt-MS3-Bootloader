@@ -59,6 +59,8 @@
 #include "ms3_main_defaults.h"
 #include "ms3_main_decls.h"
 
+#include "overrun.h"
+
 int main(void)
 {
     unsigned int utmp1;
@@ -323,7 +325,7 @@ int main(void)
 
         /* for fuel table blending could do the blend here if ve1+2 -> lsum_fuel1 and ve3+4 -> lsum_fuel2 in inj.c */
 
-            do_overrun();
+            do_overrun_fuel_cut_calculations();
 
             if (outpc.status3 & STATUS3_CUT_FUEL) {
                 tmp_pw1 = 0;
@@ -415,9 +417,11 @@ END_FUEL:;
             long max_retard, act_retard;
             if (ram5.fc_timing < lsum_ign) { // check we aren't already more retarded
                 max_retard = lsum_ign - ram5.fc_timing; // total amount of retard
-                if (fc_phase == 5) {
+                if (OVERRUN_IS_TRANSITIONING_OFF()) {
                     act_retard = (max_retard * (long)fc_retard_time) / ram5.fc_trans_time_ret; // return
-                } else {
+                }
+                else
+                {
                     act_retard = (max_retard * (long)fc_retard_time) / ram5.fc_transition_time; // cut
                 }
                 lsum_ign -= act_retard;

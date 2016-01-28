@@ -1930,7 +1930,7 @@ void main_fuel_calcs(long *, long *) FAR_TEXTfc_ATTR;
 void long_term_trim_in() FAR_TEXTf2_ATTR;
 void long_term_trim_out(long *, long *) FAR_TEXTf3_ATTR;
 void flex_fuel_calcs() FAR_TEXTf0_ATTR;
-void do_overrun(void) FAR_TEXTf1_ATTR;
+void do_overrun_fuel_cut_calculations(void)FAR_TEXTf1_ATTR;
 void n2o_launch_additional_fuel(void) FAR_TEXTfe_ATTR;
 void do_knock(void) FAR_TEXTf3_ATTR;
 void calc_advance(long *) FAR_TEXTfe_ATTR;
