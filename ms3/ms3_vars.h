@@ -568,7 +568,7 @@ extern volatile unsigned char flagbyte16;
 #define FLAGBYTE16_VVT_TIMED    0x80
 
 extern volatile unsigned char flagbyte17;
-#define FLAGBYTE17_OVERRUNFC    0x01
+//#define FLAGBYTE17_OVERRUNFC    0x01
 #define FLAGBYTE17_REVLIMFC     0x02
 #define FLAGBYTE17_CANSUSP      0x04
 #define FLAGBYTE17_BFC_CRANKSET 0x08

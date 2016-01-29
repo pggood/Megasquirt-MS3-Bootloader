@@ -3383,7 +3383,7 @@ void do_overrun_fuel_cut_calculations(void)
 {
     unsigned int rpm_droprate = 0, fc_rpm_lim = ram4.fc_rpm_lower;
 
-    flagbyte17 &= ~FLAGBYTE17_OVERRUNFC; // only checked in mainloop code
+    //flagbyte17 &= ~FLAGBYTE17_OVERRUNFC; // only checked in mainloop code
     /* Figure out what RPM we want to re-enable fuel at if variable fuel re-engagement is on */
 
     if ((ram4.OvrRunC & OVRRUNC_ON) && ((flagbyte2 & flagbyte2_crank_ok) == 0)) { // also check that not just after cranking
@@ -3468,7 +3468,7 @@ void do_overrun_fuel_cut_calculations(void)
             }
             else // no transition
             {
-                flagbyte17 |= FLAGBYTE17_OVERRUNFC;
+                //flagbyte17 |= FLAGBYTE17_OVERRUNFC;
                 OVERRUN_SET_TO_ON();
                 fc_off_time = 0xff;
             }
@@ -3490,6 +3490,8 @@ void do_overrun_fuel_cut_calculations(void)
         if (fc_counter == 0)
         {
             OVERRUN_SET_TO_ON();
+            /* XXX why not set FLAGBYTE17_OVERRUNFC? as in other cases 
+               where overrun state is set to ON? */
         }
         else
         {
@@ -3510,7 +3512,7 @@ void do_overrun_fuel_cut_calculations(void)
     }
     else if (OVERRUN_IS_ON()) {
         // fc_retard is maintained
-        flagbyte17 |= FLAGBYTE17_OVERRUNFC;
+        //flagbyte17 |= FLAGBYTE17_OVERRUNFC;
         fc_off_time = 0xff;
         /* sit at this phase until code above moves us on */
 

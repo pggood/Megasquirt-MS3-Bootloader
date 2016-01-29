@@ -159,8 +159,8 @@
 */
 #include "ms3.h"
 #include "sliding_window_average.h"
-
-#define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
+#include "overrun.h"
+#include "utils.h"
 
 /*  
  * XXX. Any special attributes required for the averaging
@@ -2892,12 +2892,13 @@ void do_revlim_overboost_maxafr(void)
     }
 
     /* Check what bits are wanting to cut fuel and set/clear the master setbit */
-    if ( (flagbyte17 & FLAGBYTE17_REVLIMFC) || (flagbyte17 & FLAGBYTE17_OVERRUNFC)
-        || (maxafr_stat == 2)
-        || (flagbyte21 & FLAGBYTE21_LAUNCHFC)
-        || ((ram4.OverBoostOption & 0x01) && (outpc.status2 & STATUS2_OVERBOOST_ACTIVE))
-        || ((outpc.engine & ENGINE_CRANK) && (outpc.tps > ram4.TPSWOT))
-        || (flagbyte22 & FLAGBYTE22_SHUTDOWNACTIVE)
+    if ( (flagbyte17 & FLAGBYTE17_REVLIMFC) 
+         || OVERRUN_IS_ON() /* (flagbyte17 & FLAGBYTE17_OVERRUNFC) */
+         || (maxafr_stat == 2)
+         || (flagbyte21 & FLAGBYTE21_LAUNCHFC)
+         || ((ram4.OverBoostOption & 0x01) && (outpc.status2 & STATUS2_OVERBOOST_ACTIVE))
+         || ((outpc.engine & ENGINE_CRANK) && (outpc.tps > ram4.TPSWOT))
+         || (flagbyte22 & FLAGBYTE22_SHUTDOWNACTIVE)
         ) {
         outpc.status3 |= STATUS3_CUT_FUEL;
     } else {
@@ -6328,7 +6329,7 @@ void alternator(void)
                 alt_startwot = outpc.seconds;
                 alt_lastvt = outpc.alt_targv;
             } else {
-                if (flagbyte17 & FLAGBYTE17_OVERRUNFC) {
+                if (OVERRUN_IS_ON() /* flagbyte17 & FLAGBYTE17_OVERRUNFC */) {
                     outpc.alt_targv = ram5.alternator_overrv; // in over-run fuel cut mode (could enable sooner)
                 } else {
                     outpc.alt_targv = ram5.alternator_targvr;

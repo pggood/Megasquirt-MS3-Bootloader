@@ -50,6 +50,7 @@
  *
 */
 #include "ms3.h"
+#include "overrun.h"
 
 void ign_reset(void)
 {
@@ -90,7 +91,15 @@ void ign_reset(void)
     egopstat[0] = egopstat[1] = 0;
     tpsaclk = 0;
     outpc.status3 &= ~STATUS3_CUT_FUEL;
-    flagbyte17 &= ~(FLAGBYTE17_OVERRUNFC | FLAGBYTE17_REVLIMFC | FLAGBYTE17_STATCAM);
+    /* why clear FLAGBYTE17_OVERRUNFC here without setting 
+     * overrun fuel cut state off (if it was on)? 
+     * The next time the overrun fuel cut calculations are done, the
+     * bit will just get set again. 
+     * What does injector stuff have to do with ignition reset?
+     */
+    //flagbyte17 &= ~(FLAGBYTE17_OVERRUNFC | FLAGBYTE17_REVLIMFC | FLAGBYTE17_STATCAM);
+    flagbyte17 &= ~(FLAGBYTE17_REVLIMFC | FLAGBYTE17_STATCAM);
+    OVERRUN_SET_TO_OFF();
 
     spark_events = spark_events_a;
     dwell_events = dwell_events_a;
