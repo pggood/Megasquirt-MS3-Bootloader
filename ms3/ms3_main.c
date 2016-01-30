@@ -60,6 +60,7 @@
 #include "ms3_main_decls.h"
 
 #include "overrun.h"
+#include "config.h"
 
 int main(void)
 {
@@ -432,8 +433,8 @@ END_FUEL:;
         }
 
         /* Is this enough for anti-lag ? */
-        if (lsum_ign < -450) { // most retard allowed is to 45ATDC
-            lsum_ign = -450;
+        if (lsum_ign < MAX_RETARD_ANGLE_DECIDEGREES()) {
+            lsum_ign = MAX_RETARD_ANGLE_DECIDEGREES();
         }
 
         lsum_ign -= outpc.tc_retard;

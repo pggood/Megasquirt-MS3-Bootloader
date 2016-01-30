@@ -4765,7 +4765,7 @@ void var_init()
 
     sec_timer = 0;
     stall_timeout = 18750 / num_cyl;    // calculate stall timeout once
-    fc_counter = 0;
+    OVERRUN_STOP_TIMER();
     OVERRUN_SET_TO_OFF();
     fc_retard_time = 0;
     fc_ae = 0;
