@@ -21,7 +21,7 @@ unsigned int sliding_average_update(sliding_average_ctx_st * const pctx, unsigne
     return pctx->sum_of_samples / pctx->samples_inserted;
 }
 
-void sliding_average_init(sliding_average_ctx_st * const pctx, unsigned int * const samples, size_t const num_samples)
+void sliding_average_init(sliding_average_ctx_st * const pctx, unsigned int * const samples, uint8_t const num_samples)
 {
     pctx->samples = samples;
     pctx->num_samples = num_samples;
