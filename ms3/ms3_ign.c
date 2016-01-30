@@ -1725,12 +1725,17 @@ void do_everytooth_calcs(long *lsum, long *lsum1, char *localflags)
                    to give a full 720 deg of data when sampled every 0.128ms
                    and allowing for tooth data. */
                 maplog_max = 1 + (unsigned char)(2344 / outpc.rpm);
-            } else if ((flagbyte0 & FLAGBYTE0_ENGLOG) && (page >= 0xf6)) { // 4 byte
-                // numbers chosen as a balance between precision and data points
-                maplog_max = 1 + (unsigned char)(2900 / outpc.rpm);
-            } else if (flagbyte0 & FLAGBYTE0_ENGLOG) { // 3 byte
-                // numbers chosen as a balance between precision and data points
-                maplog_max = 1 + (unsigned char)(2700 / outpc.rpm);
+            }
+            else if ((flagbyte0 & FLAGBYTE0_ENGLOG)) {
+                if (page >= 0xf6) {
+                    // 4 byte
+                    // numbers chosen as a balance between precision and data points
+                    maplog_max = 1 + (unsigned char)(2900 / outpc.rpm);
+                }
+                else { // 3 byte
+                    // numbers chosen as a balance between precision and data points
+                    maplog_max = 1 + (unsigned char)(2700 / outpc.rpm);
+                }
             }
         }
     } else {
