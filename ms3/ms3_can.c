@@ -88,6 +88,7 @@
  *
  */
 #include "ms3.h"
+#include "config.h"
 
 #define r27 ram_window.pg27
 
@@ -1889,13 +1890,13 @@ void can_iobox(void)
 
                     t = optb & 0x30; /* 10, 20, 50, 100Hz */
                     if (t == 0) {
-                        t = 781;
+                        t = TICKS_PER_SECOND/10;
                     } else if (t == 0x10) {
-                        t = 390;
+                        t = TICKS_PER_SECOND/20;
                     } else if (t == 0x20) {
-                        t = 156;
+                        t = TICKS_PER_SECOND / 50;
                     } else {
-                        t = 78;
+                        t = TICKS_PER_SECOND / 100;
                     }
                 } else {
                     t = 156;
@@ -2261,13 +2262,13 @@ void can_dashbcast(void)
         if (opta & 0x2) { /* Advanced */
             t = opta & 0x30; /* 10, 20, 50, 100Hz */
             if (t == 0) {
-                t = 781;
+                t = TICKS_PER_SECOND/10;
             } else if (t == 0x10) {
-                t = 390;
+                t = TICKS_PER_SECOND/20;
             } else if (t == 0x20) {
-                t = 156;
+                t = TICKS_PER_SECOND/50;
             } else {
-                t = 78;
+                t = TICKS_PER_SECOND/100;
             }
             id = ram_window.pg28.dashbcast_id;
         } else {

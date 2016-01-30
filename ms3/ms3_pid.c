@@ -12,6 +12,7 @@
  */
 
 #include "ms3.h"
+#include "config.h"
 
 void convert_unitless_percent(int min, int max, int targ, int raw_PV,
                               long *PV, long *SP)
@@ -31,8 +32,8 @@ long generic_pid_routine(int min, int max, int targ, int raw_PV,
     int pid_divider, pid_multiplier;
 
     if (config & PID_LOOPTIME_RTC) {
-        pid_divider = 7812;
-        pid_multiplier = 781;
+        pid_divider = TICKS_PER_SECOND;
+        pid_multiplier = TICKS_PER_SECOND/10;
     } else {
         pid_divider = 1000;
         pid_multiplier = 100;

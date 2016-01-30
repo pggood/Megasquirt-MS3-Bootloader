@@ -49,6 +49,7 @@
 #include "fan_control.h"
 #include "idle_control.h"
 #include "ac_control.h"
+#include "config.h"
 
 void idle_voltage_compensation(void)
 {
@@ -356,7 +357,7 @@ void idle_iac_warmup(void)
                 t_lmms = lmms;
                 ENABLE_INTERRUPTS;
                 t_lmms -= tcrank_done_lmms;
-                t = t_lmms / 781; // deciseconds since crank->run
+                t = t_lmms / (TICKS_PER_SECOND/10); // deciseconds since crank->run
                 u = ram4.IACcrankxt * 10; // deciseconds of target crank->run time
 
                 if (t < u) {

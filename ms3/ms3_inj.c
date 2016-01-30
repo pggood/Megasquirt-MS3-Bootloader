@@ -111,6 +111,7 @@
 
 #include "ms3.h"
 #include "overrun.h"
+#include "config.h"
 
 /**************************************************************************
  **
@@ -406,7 +407,7 @@ void calc_staged_pw(unsigned long base_pw)
             if (!(flagbyte17 & FLAGBYTE17_DONEFLAPS)) {
                 unsigned int t;
                 t = (unsigned int)lmms - staged_flaptimer;
-                t /= 781;
+                t /= TICKS_PER_SECOND/10;
                 if (t > ram5.staged_out2_time) {
                     flagbyte17 &= ~FLAGBYTE17_DONEFLAPS;
                 }
@@ -1670,7 +1671,7 @@ char crank_calcs(void)
                 lmms1 = lmms;
                 ENABLE_INTERRUPTS;
                 lmms1 = lmms1 - lmms_crank; // how long since we started cranking
-                lmms1 /= 780; // convert to 0.1s
+                lmms1 /= TICKS_PER_SECOND/10; // convert to 0.1s
             }
             p = intrp_1ditable((int)lmms1, 6,
                                (int *)ram_window.pg11.cranktaper_time, 0,
@@ -3540,7 +3541,7 @@ void do_overrun_fuel_cut_calculations(void)
         }
 
         lmms_t = (unsigned int)lmms;
-        if ((lmms_t - fc_lmms) > ((unsigned int)ram5.fc_ae_time * 78)) {
+        if ((lmms_t - fc_lmms) > ((unsigned int)ram5.fc_ae_time * (TICKS_PER_SECOND/100))) {
             fc_ae = 0;
             fc_off_time = 0; // up counter until EGO can run again
         }
@@ -4295,11 +4296,11 @@ void hpte(void)
         }
 
         if (flagbyte17 & FLAGBYTE17_HPTE) {
-            timer2 = hpte_timer / 781; // into 0.1s units
+            timer2 = hpte_timer / (TICKS_PER_SECOND/10); // into 0.1s units
             RPAGE = tables[25].rpg;
             if (timer2 > ram_window.pg25.hpte_times[5]) {
                 timer2 = ram_window.pg25.hpte_times[5];
-                hpte_timer = timer2 * 781L;
+                hpte_timer = timer2 * (long)(TICKS_PER_SECOND / 10);
             }
 
             hpte_afr = (unsigned char)intrp_1dctable(timer2, 6,

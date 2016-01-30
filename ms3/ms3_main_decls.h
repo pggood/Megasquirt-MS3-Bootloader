@@ -15,6 +15,9 @@
 
 #ifndef _MS3_MAIN_DECLS
 #define _MS3_MAIN_DEClS
+
+#include "config.h"
+
 // this gives warnings in gcc which is annoying, but using it does make some things easier
 // now used by CAN and SCI routines that reference tables
 // has a slightly different usage to MS2 2.8+
@@ -153,7 +156,7 @@ const unsigned char fast_boost_intervals[16] = {10,10,10,10,10,10,10,
 
 const unsigned char pwmopts[16] = {3,4,5,6,8,10,15,20,31,41,61,64,101,150,200,255};
 const unsigned int pwmfreq[16] = {111,111,2500,2250,2000,1750,1500,1250,1000,780,390,260,195,156,130,111};
-const unsigned int can_outpc_int[8] = {7812,7812,3906,1562,781,391,156,78};
+const unsigned int can_outpc_int[8] = { TICKS_PER_SECOND, TICKS_PER_SECOND, TICKS_PER_SECOND / 2, TICKS_PER_SECOND / 5, TICKS_PER_SECOND / 10, TICKS_PER_SECOND / 20, TICKS_PER_SECOND / 50, TICKS_PER_SECOND/100 };
 
 /* moved to xgate.s
 const unsigned char random_no[256] TEXTf9_ATTR =

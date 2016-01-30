@@ -14,6 +14,7 @@
 /* mainloop portion of serial processing */
 
 #include "ms3.h"
+#include "config.h"
 
 #define GWR(a) g_write_generic(a, &x, sizeof(a));
 
@@ -144,9 +145,9 @@ void serial()
     if (flagbyte21 & FLAGBYTE21_KILL_SRL0) {
         unsigned int lmms_tmp, timeout;
         if (srlerr0 == 7) {
-            timeout = 7812; // 1 second
+            timeout = TICKS_PER_SECOND;
         } else {
-            timeout = 390; // about 50ms seconds of timeout
+            timeout = MILLISECS_TO_TICKS(50);
         }
         lmms_tmp = (unsigned int)lmms;
 
@@ -199,9 +200,9 @@ void serial()
     if (flagbyte21 & FLAGBYTE21_KILL_SRL1) {
         unsigned int lmms_tmp, timeout;
         if (srlerr1 == 7) {
-            timeout = 7812; // 1 second
+            timeout = TICKS_PER_SECOND;
         } else {
-            timeout = 390; // about 50ms seconds of timeout
+            timeout = MILLISECS_TO_TICKS(50);
         }
         lmms_tmp = (unsigned int)lmms;
 

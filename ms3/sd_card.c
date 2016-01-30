@@ -28,6 +28,7 @@
 
 #include "SD.h"
 #include "ms3.h"
+#include "config.h"
 
 #define LOG_SIZE 64
 #define MIN_LOG_INT 15 // 2ms
@@ -313,7 +314,7 @@ void do_sdcard(void)
 
     } else if ((sd_ledstat & 0x07) == 3) {      // error flash codes (part 1)
         if (sd_ledstat & 0x80) {
-            if (((unsigned int) lmms - sd_ledclk) > 780) {
+            if (((unsigned int) lmms - sd_ledclk) > (TICKS_PER_SECOND/10)) {
                 sd_ledclk = (unsigned int) lmms;        // only use low word
                 sd_ledstat &= ~0x80;
                 if (outpc.sd_error > 1) {
@@ -322,21 +323,21 @@ void do_sdcard(void)
                 }
             }
         } else {
-            if (((unsigned int) lmms - sd_ledclk) > 15000) {
+            if (((unsigned int) lmms - sd_ledclk) > (TICKS_PER_SECOND*2)) {
                 sd_ledclk = (unsigned int) lmms;        // only use low word
                 sd_ledstat |= 0x80;
             }
         }
 
     } else if ((sd_ledstat & 0x07) == 4) {      // alternating ~0.1s total period - init
-        if (((unsigned int) lmms - sd_ledclk) > 390) {
+        if (((unsigned int) lmms - sd_ledclk) > (TICKS_PER_SECOND/20)) {
             sd_ledstat ^= 0x80;
             sd_ledclk = (unsigned int) lmms;    // only use low word
         }
 
     } else if ((sd_ledstat & 0x07) == 5) { // error flash codes
         if (sd_ledstat & 0x80) {
-            if (((unsigned int) lmms - sd_ledclk) > 780) {
+            if (((unsigned int) lmms - sd_ledclk) > (TICKS_PER_SECOND/10)) {
                 sd_ledclk = (unsigned int) lmms;        // only use low word
                 sd_ledstat &= ~0x80;
                 sd_block--;
@@ -345,7 +346,7 @@ void do_sdcard(void)
                 }
             }
         } else {
-            if (((unsigned int) lmms - sd_ledclk) > 3000) {
+            if (((unsigned int) lmms - sd_ledclk) > (((unsigned long)TICKS_PER_SECOND*10)/26)) {
                 sd_ledclk = (unsigned int) lmms;        // only use low word
                 sd_ledstat |= 0x80;
             }
@@ -428,7 +429,7 @@ void do_sdcard(void)
                     DISABLE_INTERRUPTS;
                     ul_tmpb = lmms;
                     ENABLE_INTERRUPTS;
-                    if ((ul_tmpb - sd_lmms_last2) > 7812) {        // ignore button until 1s after last action
+                    if ((ul_tmpb - sd_lmms_last2) > TICKS_PER_SECOND) {        // ignore button until 1s after last action
                         flagbyte15 &= ~FLAGBYTE15_SDLOGRUN; // don't do continous logs
                         sd_phase = 0x48;        // setup to write buffer and return to start
                     }
@@ -872,7 +873,7 @@ void do_sdcard(void)
         ENABLE_INTERRUPTS;
         if (PTH & 0x20) {       // card no longer present
             sd_phase = 0;
-        } else if ((ul_tmp - sd_lmms_last) > 3906) {    // card has been inserted for at least 500ms to prevent bounce
+        } else if ((ul_tmp - sd_lmms_last) > TICKS_PER_SECOND/2) {    // card has been inserted for at least 500ms to prevent bounce
             sd_log_addr = SDSECT1;       // start with first block
             sd_ledstat = 0x04;  // fast flashing
             sd_phase++;
@@ -1833,7 +1834,7 @@ void do_sdcard(void)
         DISABLE_INTERRUPTS;
         ul_tmp = lmms;
         ENABLE_INTERRUPTS;
-        if ((ul_tmp - sd_lmms_last) > 3906) {   // more than 500ms
+        if ((ul_tmp - sd_lmms_last) > TICKS_PER_SECOND/2) {
             outpc.sd_error = 29;        // write failed - bail
             sd_phase = 0xfe;
             goto SD_end_here;
@@ -2821,7 +2822,7 @@ void do_sdcard(void)
         DISABLE_INTERRUPTS;
         ul_tmp = lmms;
         ENABLE_INTERRUPTS;
-        if ((ul_tmp - sd_lmms_last) > 781) {    // 100ms
+        if ((ul_tmp - sd_lmms_last) > (TICKS_PER_SECOND/10)) {    // 100ms
             sd_phase = 0x80; // do a dummy read as well
         }
 

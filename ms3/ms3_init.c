@@ -63,6 +63,7 @@
 #include "ms3.h"
 #include "fan_control.h"
 #include "overrun.h"
+#include "config.h"
 
 #define NUM_EEPROM_WORDS 512
 #define ERASED_VALUE    0xffff
@@ -1554,7 +1555,7 @@ void main_init(void)
     mms = 0;                    // .128 ms tics
     millisec = 0;               // 1.024 ms clock (8 tics) for adcs
     lmms = 0;
-    can_sndclk = 3906; /* waits 0.5 second before polling */
+    can_sndclk = TICKS_PER_SECOND/2; /* waits 0.5 second before polling */
     can_sndclk_cnt = 0;
     can_bcast_last = 0;
     ltch_lmms = 0;
@@ -1621,7 +1622,7 @@ void main_init(void)
         pin_swpwm2[ix] = 0;
         gp_clk[ix] = 1;
         gp_max_on[ix] = 1;
-        gp_max_off[ix] = 7812;
+        gp_max_off[ix] = TICKS_PER_SECOND;
         gp_stat[ix] = 0;
     }
 
@@ -4210,7 +4211,7 @@ Typical digout list
         while (!done) {
             volatile unsigned int tlmms;
             tlmms = (volatile unsigned int)lmms;
-            if ((ATD0DR4 >= MIN_VOLTS) || (tlmms > 781)) {
+            if ((ATD0DR4 >= MIN_VOLTS) || (tlmms > TICKS_PER_SECOND/10)) {
                 done = 1;
             }
         };

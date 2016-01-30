@@ -184,7 +184,7 @@ int main(void)
         dribble_burn();
 
         /* Moved this section here 2014-12-28 so sensors do get updated in test mode */
-        if (((unsigned int)lmms - adc_lmms) > 78) {   // every 10 ms (78 x .128 ms clk)
+        if (((unsigned int)lmms - adc_lmms) > (TICKS_PER_SECOND/100)) {   // every 10 ms
             adc_lmms = (unsigned int)lmms;
             // read 10-bit ADC results, convert to engineering units and filter
             next_adc++;

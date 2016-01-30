@@ -1618,10 +1618,10 @@ CLK_DONE:
    ldx    sec_timer  ;    // Get display seconds from 0.128ms clock
    inx
    stx    sec_timer
-   cpx    #7812 ; really 7812.5
+   cpx    #TICKS_PER_SEC_ASM ; really 7812.5
    blo    DONE1s
    beq    cd_7812
-   cpx    #15625 ; 2*7812.5. The second second..otherwise every second hour we lose one second
+   cpx    #TICKS_PER_TWO_SEC_ASM ; 2*7812.5. The second second..otherwise every second hour we lose one second
    blo    DONE1s
    clrw   sec_timer
 cd_7812:

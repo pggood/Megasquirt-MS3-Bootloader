@@ -51,6 +51,7 @@
 */
 #include "ms3.h"
 #include "overrun.h"
+#include "config.h"
 
 void ign_reset(void)
 {
@@ -1648,7 +1649,7 @@ void do_everytooth_calcs(long *lsum, long *lsum1, char *localflags)
             v1.rpmdot_data[0][1] = outpc.rpm/10; /* store rpm */
 
             /* minimum 10ms between samples to prevent high rpm jitter and cycletime cost */
-            if ((v1.rpmdot_data[0][0] - v1.rpmdot_data[1][0]) > 78) {
+            if ((v1.rpmdot_data[0][0] - v1.rpmdot_data[1][0]) > TICKS_PER_SECOND/100) {
                 int rpmi;
                 long rpmdot_sumx, rpmdot_sumx2, rpmdot_sumy, rpmdot_sumxy;
                 long toprow, btmrow;
@@ -1676,7 +1677,7 @@ void do_everytooth_calcs(long *lsum, long *lsum1, char *localflags)
                 btmrow = rpmdot_sumx2 - (rpmdot_sumx * rpmdot_sumx / rpmi);
 
                 btmrow = btmrow / 10; /* allows top row to be 10x less to reduce overflow. */
-                toprow = (-toprow * 781) / btmrow;
+                toprow = (-toprow * (TICKS_PER_SECOND/10)) / btmrow;
                 if (toprow > 32767) {
                     toprow = 32767;
                 } else if (toprow < -32767) {
@@ -1690,7 +1691,7 @@ void do_everytooth_calcs(long *lsum, long *lsum1, char *localflags)
                     tmp_btm = v1.rpmdot_data[0][0] - v1.rpmdot_data[RPMDOT_N-1][0];
                     tmp_top = (int)v1.rpmdot_data[0][1] - (int)v1.rpmdot_data[RPMDOT_N-1][1];
                     tmp_btm = tmp_btm / 10; /* allows top row to be 10x less to reduce overflow. */
-                    tmp_top = (tmp_top * 781) / tmp_btm;
+                    tmp_top = (tmp_top * (TICKS_PER_SECOND/10)) / tmp_btm;
                     if (tmp_top > 32767) {
                         tmp_top = 32767;
                     } else if (tmp_top < -32767) {

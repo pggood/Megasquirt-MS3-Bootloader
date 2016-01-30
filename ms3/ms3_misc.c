@@ -161,6 +161,7 @@
 #include "sliding_window_average.h"
 #include "overrun.h"
 #include "utils.h"
+#include "config.h"
 
 /*  
  * XXX. Any special attributes required for the averaging
@@ -1917,7 +1918,7 @@ void sample_map_tps(char *localflags)
 
     // mapdot
     tmp_mapsample_time = (unsigned int)lmms - mapsample_time;
-    if (tmp_mapsample_time > 78) { // minimum 10ms
+    if (tmp_mapsample_time > TICKS_PER_SECOND/100) { // minimum 10ms
         DISABLE_INTERRUPTS;
         mapsample_time = (unsigned int)lmms;
         ENABLE_INTERRUPTS;
@@ -1951,7 +1952,7 @@ void sample_map_tps(char *localflags)
         */
         a = v1.mapdot_data[0][1] - v1.mapdot_data[1][1];
         b = v1.mapdot_data[0][0] - v1.mapdot_data[1][0];
-        a = (int)((7812L * a) / b);
+        a = (int)(((long)TICKS_PER_SECOND * a) / b);
         a = long_abs(a);
 
         if (a > 2500) { // 250%/s
@@ -1967,7 +1968,7 @@ void sample_map_tps(char *localflags)
         toprow = (int)v1.mapdot_data[0][1] - (int)v1.mapdot_data[samples - 1][1];
         btmrow = v1.mapdot_data[0][0] - v1.mapdot_data[samples - 1][0];    
 
-        toprow = (toprow * 781) / btmrow;
+        toprow = (toprow * (TICKS_PER_SECOND/10)) / btmrow;
         if (toprow > 32767) {
             toprow = 32767;
         } else if (toprow < -32767) {
@@ -2074,7 +2075,7 @@ void sample_map_tps(char *localflags)
         v1.tpsdot_data[0][1] = tmp1; /* w/o extra bits */
 
         /* minimum 10ms between samples */
-        if ((v1.tpsdot_data[0][0] - v1.tpsdot_data[1][0]) > 78) {
+        if ((v1.tpsdot_data[0][0] - v1.tpsdot_data[1][0]) > (int)TICKS_PER_SECOND/100) {
             int tpsi, samples, a, b;
             long toprow, btmrow;
 
@@ -2083,7 +2084,7 @@ void sample_map_tps(char *localflags)
             */
             a = v1.tpsdot_data[0][1] - v1.tpsdot_data[1][1];
             b = v1.tpsdot_data[0][0] - v1.tpsdot_data[1][0];
-            a = (int)((7812L * a) / b);
+            a = (int)(((long)TICKS_PER_SECOND * a) / b);
             a = long_abs(a);
 
             if (a > 2500) { // 250%/s
@@ -2099,7 +2100,7 @@ void sample_map_tps(char *localflags)
             btmrow = v1.tpsdot_data[0][0] - v1.tpsdot_data[samples - 1][0];    
 
             btmrow = btmrow / 10; /* allows top row to be 10x less to reduce overflow. */
-            toprow = (toprow * 781) / btmrow;
+            toprow = (toprow * (TICKS_PER_SECOND/10)) / btmrow;
             if (toprow > 32767) {
                 toprow = 32767;
             } else if (toprow < -32767) {
@@ -3185,7 +3186,7 @@ void do_egt(void)
 void do_sensors()
 {
     unsigned char i;
-    if (((unsigned int)lmms - sens_time) > 78) { // every 10ms
+    if (((unsigned int)lmms - sens_time) > (TICKS_PER_SECOND/100)) { // every 10ms
         sens_time = (unsigned int)lmms;
     } else {
         return;
@@ -3551,7 +3552,7 @@ void calcvssdot()
             btmrow = vssdot_sumx2 - (vssdot_sumx * vssdot_sumx / vssi);
 
             btmrow = btmrow / 10; // allows top row to be 10x less to reduce overflow.
-            toprow = (-toprow * 781) / btmrow;
+            toprow = (-toprow * (TICKS_PER_SECOND/10)) / btmrow;
             if (toprow > 32767) {
                 toprow = 32767;
             } else if (toprow < -32767) {
@@ -3599,7 +3600,7 @@ void accelerometer()
 {
     signed int tmp1, tmp2, tmp3;
 //need (more!) lag factors
-    if (((unsigned int)lmms - accxyz_time) > 78) { // every 10ms
+    if (((unsigned int)lmms - accxyz_time) > (TICKS_PER_SECOND/100)) { // every 10ms
         accxyz_time = (unsigned int)lmms;
     } else {
         return;
@@ -3923,12 +3924,12 @@ void generic_pwm_outs()
                 /* use the duty variable as the frequency 1Hz */
                 f = *sw_pwm_duty[i];
                 if (f) {
-                    trig = 7812 / f;
+                    trig = TICKS_PER_SECOND / f;
                     trig2 = trig >> 1;
                     trig = trig - trig2; /* maintain period and allow for rounding */
                 } else {
-                    trig = 3906;
-                    trig2 = 3906;
+                    trig = TICKS_PER_SECOND/2;
+                    trig2 = TICKS_PER_SECOND/2;
                 }
                 gp_max_on[i] = trig;
                 gp_max_off[i] = trig2;
@@ -3939,12 +3940,12 @@ void generic_pwm_outs()
                 /* use the duty variable as the frequency 0.1Hz */
                 f = *(unsigned int*)sw_pwm_duty[i];
                 if (f) {
-                    trig = 78125 / f;
+                    trig = TICKS_PER_10_SEC / f;
                     trig2 = trig >> 1;
                     trig = trig - trig2; /* maintain period and allow for rounding */
                 } else {
                     trig = 0;
-                    trig2 = 78;
+                    trig2 = TICKS_PER_SECOND/100;
                 }
                 gp_max_on[i] = trig;
                 gp_max_off[i] = trig2;
@@ -4955,10 +4956,10 @@ void ckstall(void)
         /* Longer non-running timeout or not yet out of crank mode
             Saves pump bouncing on and off during starting attempt. */
         if (outpc.seconds > (2 + ((unsigned int)ram4.primedelay / 10))) {
-            stalltime2 = 3906; // 0.5s, was 2s
+            stalltime2 = TICKS_PER_SECOND/2;
         } else {
             /* right at start include the primedelay too */
-            stalltime2 = 15625 + (781 * ram4.primedelay);
+            stalltime2 = (TICKS_PER_SECOND*2) + ((TICKS_PER_SECOND/10) * ram4.primedelay);
         }
 
     } else {
@@ -6245,7 +6246,7 @@ void alternator(void)
             t = lmms;
             ENABLE_INTERRUPTS;
             t -= tcrank_done_lmms;
-            t /= 781; // convert to 0.1s
+            t /= TICKS_PER_SECOND/10; // convert to 0.1s
 
             if (t > ram5.alternator_startdelay) {
                 alt_state = 1;
@@ -6284,7 +6285,7 @@ void alternator(void)
             t = lmms;
             ENABLE_INTERRUPTS;
             t -= alt_startramp;
-            t /= 781; // convert to 0.1s
+            t /= TICKS_PER_SECOND/10; // convert to 0.1s
             if ((mode == 1) || (t > ram5.alternator_ramptime)) {
                 alt_state = 2;
             } else {
@@ -6311,7 +6312,7 @@ void alternator(void)
             t = lmms;
             ENABLE_INTERRUPTS;
             t -= alt_startramp;
-            t /= 781; // convert to 0.1s
+            t /= TICKS_PER_SECOND/10; // convert to 0.1s
             if (t > ram5.alternator_ramptime) {
                 alt_state = 4;
             } else if ((outpc.tps > ram5.alternator_wot) && ((flagbyte19 & FLAGBYTE19_ALTWOTLO) == 0)) {
@@ -6341,7 +6342,7 @@ void alternator(void)
             t = lmms;
             ENABLE_INTERRUPTS;
             t -= alt_startramp;
-            t /= 781; // convert to 0.1s
+            t /= TICKS_PER_SECOND/10; // convert to 0.1s
             if (t > ram5.alternator_ramptime) {
                 alt_state -= 0x20; // drop back to state we were in
             } else {
@@ -6610,7 +6611,7 @@ void linelock_staging(void)
             }
         } else if (llstg_state == 1) {
             if (pin_llstg_in && ((*port_llstg_in & pin_llstg_in) != pin_match_llstg_in)) {
-                if (((unsigned int)lmms - llstg_time) > 781) {
+                if (((unsigned int)lmms - llstg_time) > TICKS_PER_SECOND/10) {
                     /* button released and debounce */
                     llstg_state = 2;
                 }
@@ -6628,7 +6629,7 @@ void linelock_staging(void)
             }
         } else if (llstg_state == 3) {
             if (pin_llstg_in && ((*port_llstg_in & pin_llstg_in) != pin_match_llstg_in)) {
-                if (((unsigned int)lmms - llstg_time) > 781) {
+                if (((unsigned int)lmms - llstg_time) > TICKS_PER_SECOND/10) {
                     /* button released and debounce */
                     llstg_state = 0;
                 }

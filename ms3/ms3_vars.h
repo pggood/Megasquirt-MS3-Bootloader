@@ -761,6 +761,13 @@ extern unsigned char vss1_st, vss2_st, vss3_st, vss4_st, ss1_st, ss2_st;
 #define NUM_SWPWM   10
 #define NUM_CHAN 16
 
+/*  
+ * Hack to so that assembler files can use a define for the 
+ * TICKS_SEC rather than a magic number 
+ */
+#define TICKS_PER_SEC_ASM 7812  
+#define TICKS_PER_TWO_SEC_ASM 15625
+
 //Port/pin definitions
 extern volatile unsigned short *port_stream, *port_launch_var, *mapport, *port_map2,
     *port_egt[NUM_CHAN], *mafport, *port_sensor[NUM_CHAN], *port_knock_in, *port_tc_knob,
