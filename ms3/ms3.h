@@ -2054,8 +2054,6 @@ void ign_wheel_init(void) FAR_TEXTfb_ATTR;
 void calc_absangs(void) FAR_TEXTfa_ATTR;
 void boost_ctl_init(void) FAR_TEXTfc_ATTR;
 void boost_ctl(void) FAR_TEXTfc_ATTR;
-void boost_ctl_ol(int, unsigned char, char *) FAR_TEXTfc_ATTR;
-void boost_ctl_cl(int, int, int, int, int, unsigned char, unsigned char, int, char *) FAR_TEXTfc_ATTR;
 void idle_ctl_init(void) FAR_TEXTfc_ATTR;
 void idle_ctl(void) FAR_TEXTfc_ATTR;
 void idle_test_mode(void) FAR_TEXTfc_ATTR;

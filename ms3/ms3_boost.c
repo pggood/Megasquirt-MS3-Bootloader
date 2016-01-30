@@ -55,8 +55,8 @@ void boost_ctl_init(void)
     boost_ctl_timer = boost_ctl_ms;
 }
 
-void boost_ctl_cl(int channel, int lowerlimit, int Kp, int Ki, int Kd, unsigned char closeduty,
-                  unsigned char openduty, int sensitivity, char *outputptr)
+static void boost_ctl_cl(int channel, int lowerlimit, int Kp, int Ki, int Kd, unsigned char closeduty,
+                  unsigned char openduty, int sensitivity)
 {
     /* CLOSED LOOP BOOST */
     int targ_load, maxboost, tmp2;
@@ -227,7 +227,6 @@ void boost_ctl_cl(int channel, int lowerlimit, int Kp, int Ki, int Kd, unsigned 
         } /* else no change */
 
         if (ret) {
-            *outputptr = boost_ctl_duty[channel];
             boost_ctl_last_error[channel] = 0;
             boost_PID_enabled[channel] = 0;
             return;
@@ -256,7 +255,7 @@ void boost_ctl_cl(int channel, int lowerlimit, int Kp, int Ki, int Kd, unsigned 
     boost_ctl_duty[channel] = tmp1;
 }
 
-void boost_ctl_ol(int channel, unsigned char coldduty, char *outputptr)
+static void boost_ctl_ol(int channel, unsigned char coldduty)
 {
     /* OPEN LOOP BOOST
      * lookup duty based on TPS,RPM
@@ -265,7 +264,6 @@ void boost_ctl_ol(int channel, unsigned char coldduty, char *outputptr)
     if (outpc.clt < ram4.boost_ctl_clt_threshold) {
         DISABLE_INTERRUPTS;
         boost_ctl_duty[channel] = coldduty;
-        *outputptr = boost_ctl_duty[channel];
         ENABLE_INTERRUPTS;
         return;
     }
@@ -399,10 +397,9 @@ void boost_ctl(void)
             sensitivity = MAX_BOOST - ram4.boost_ctl_sensitivity;
 
             boost_ctl_cl(0, ram4.boost_ctl_lowerlimit, Kp, Ki, Kd,
-                         ram4.boost_ctl_closeduty, ram4.boost_ctl_openduty, sensitivity,
-                         &outpc.boostduty);
+                         ram4.boost_ctl_closeduty, ram4.boost_ctl_openduty, sensitivity);
         } else {
-            boost_ctl_ol(0, 0, &outpc.boostduty); /* , 0 was ram4.boost_ctl_openduty */
+            boost_ctl_ol(0, 0); /* , 0 was ram4.boost_ctl_openduty */
         }
 
         outpc.boostduty = boost_ctl_duty[0];
@@ -435,14 +432,14 @@ void boost_ctl(void)
 
                 sensitivity = MAX_BOOST - ram4.boost_ctl_sensitivity2;
 
-                boost_ctl_cl(0, ram5.boost_ctl_lowerlimit2, Kp, Ki, Kd, ram5.boost_ctl_closeduty2,
-                             ram5.boost_ctl_openduty2, sensitivity, &outpc.boostduty2);
+                boost_ctl_cl(1, ram5.boost_ctl_lowerlimit2, Kp, Ki, Kd, ram5.boost_ctl_closeduty2,
+                             ram5.boost_ctl_openduty2, sensitivity);
             } else {
                 /* OPEN LOOP BOOST
                  * lookup duty based on TPS,RPM
                  */
 
-                boost_ctl_ol(1, 0, &outpc.boostduty2); /* , 0 was ram5.boost_ctl_openduty2 */
+                boost_ctl_ol(1, 0); /* , 0 was ram5.boost_ctl_openduty2 */
             }
             outpc.boostduty2 = boost_ctl_duty[1];
         }
