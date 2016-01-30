@@ -2072,6 +2072,7 @@ long generic_ideal_pid_routine(int, int, int, int, int, int, int,
                                long *, long *, int, int, int, int,
                                unsigned char) FAR_TEXTf9_ATTR;
 void generic_pid(void) FAR_TEXTf9_ATTR;
+void convert_unitless_percent(int, int, int, int, long *, long *) FAR_TEXTf9_ATTR;
 void idle_voltage_compensation(void) FAR_TEXTf9_ATTR;
 void idle_ac_idleup(void) FAR_TEXTf9_ATTR;
 void fan_ctl_idleup(void) FAR_TEXTf9_ATTR;
