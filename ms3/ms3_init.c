@@ -2704,30 +2704,38 @@ Typical digout list
     // Generic PID
     RPAGE = tables[27].rpg;
 
-    for (ix = 0; ix < 2; ix++) {
-        if (ram_window.pg27.generic_pid_flags[ix] & GENERIC_PID_ON) {
+    for (ix = 0; ix < NUM_GENERIC_PID; ix++) {
+        generic_pid_context_st * generic_pid_context = &ram_window.pg27.generic_pid[ix]; 
+
+        if (generic_pid_context->flags & GENERIC_PID_ON)
+        {
             unsigned char tmp_opt;
 
-            generic_pid_control_intervals[ix] = ram_window.pg27.generic_pid_control_intervals[ix];
+            generic_pid_control_intervals[ix] = generic_pid_context->control_intervals;
 
-            tmp_opt = (ram_window.pg27.generic_pid_pwm_outs[ix] & 0x3f);
+            tmp_opt = (generic_pid_context->pwm_outs & 0x3f);
 
-            if (tmp_opt != 0) {
+            if (tmp_opt != 0)
+            {
                 unsigned char pwm_opt, pwm_flag;
 
-                pwm_opt = (ram_window.pg27.generic_pid_pwm_opts[ix] >> 1) & 0x0f;
-                if (pwm_opt == 1) { // variable freq
+                pwm_opt = (generic_pid_context->pwm_opts >> 1) & 0x0f;
+                if (pwm_opt == 1) // variable freq
+                {
                     pwm_flag = 0xA0;
-                } else {
-                    pwm_flag =0x80;
+                }
+                else
+                {
+                    pwm_flag = 0x80;
                 }
 
-                if (ram_window.pg27.generic_pid_flags[ix] & GENERIC_PID_DIRECTION) {
+                if (generic_pid_context->flags & GENERIC_PID_DIRECTION)
+                {
                     pwm_flag |= 0x40;
                 }
 
                 (void)generic_swpwm_setup(&outpc.generic_pid_duty[ix], 174, tmp_opt, pwm_flag, pwm_opt,
-                                          130 + ix, 0); 
+                                          130 + ix, 0);
             }
         }
     }

@@ -1758,41 +1758,62 @@ const page27_data dflash27 CNFDATA2_ATTR = {
     {500, 800, 1100, 1400, 2000, 2600, 3100, 3700, 4300, 4900, 5400, 6000}, // ego_delay_rpms
     {300, 400, 500, 550, 600, 700, 800, 900, 1000, 2000, 3000, 4000}, // ego_delay_loads
     25, // ego_sensor_delay
-    {2,2}, // generic_pid_flags
-    {30,30}, // generic_pid_pwm_opts
-    {5,6}, // generic_pid_pwm_outs
-    {24,24}, // generic_pid_load_offsets
-    {2,2}, // generic_pid_load_sizes
-    {1000,1000}, // generic_pid_upper_inputlims
-    {0,0}, // generic_pid_lower_inputlims
-    {252,252}, // generic_pid_output_upperlims
-    {3,3}, // generic_pid_output_lowerlims
-    {104,106}, // generic_pid_PV_offsets
-    {2,2}, // generic_pid_PV_sizes
-    {{{500,1000,1500,2000,3000,4000,5000,6000}, // generic_pid_axes3d
-      {0,200,300,400,500,600,800,1000}}, 
-     {{500,1000,1500,2000,3000,4000,5000,6000},
-      {0,200,300,400,500,600,800,1000}}},
-    {{{0,0,0,0,0,0,0,0}, // generic_pid_targets
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0}},
-     {{0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0},
-      {0,0,0,0,0,0,0,0}}},
-     {100,100}, // generic_pid_control_intervals
-     {100,100},
-     {100,100},
-     {100,100},
+    {
+        {
+            2, // generic_pid_flags
+            30, // generic_pid_pwm_opts
+            5, // generic_pid_pwm_outs
+            24, // generic_pid_load_offsets
+            2, // generic_pid_load_sizes
+            1000, // generic_pid_upper_inputlims
+            0, // generic_pid_lower_inputlims
+            252, // generic_pid_output_upperlims
+            3, // generic_pid_output_lowerlims
+            104, // generic_pid_PV_offsets
+            2, // generic_pid_PV_sizes
+            { { 500, 1000, 1500, 2000, 3000, 4000, 5000, 6000 }, // generic_pid_axes3d
+                { 0, 200, 300, 400, 500, 600, 800, 1000 } },
+            { { 0, 0, 0, 0, 0, 0, 0, 0 }, // generic_pid_targets
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 } },
+            100, // generic_pid_control_intervals
+            100,
+            100,
+            100
+        },
+        {
+            2, // generic_pid_flags
+            30, // generic_pid_pwm_opts
+            6, // generic_pid_pwm_outs
+            24, // generic_pid_load_offsets
+            2, // generic_pid_load_sizes
+            1000, // generic_pid_upper_inputlims
+            0, // generic_pid_lower_inputlims
+            252, // generic_pid_output_upperlims
+            3, // generic_pid_output_lowerlims
+            106, // generic_pid_PV_offsets
+            2, // generic_pid_PV_sizes
+            { { 500, 1000, 1500, 2000, 3000, 4000, 5000, 6000 }, // generic_pid_axes3d
+                { 0, 200, 300, 400, 500, 600, 800, 1000 } },
+            { { 0, 0, 0, 0, 0, 0, 0, 0 }, // generic_pid_targets
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 },
+                { 0, 0, 0, 0, 0, 0, 0, 0 } },
+            100, // generic_pid_control_intervals
+            100,
+            100,
+            100,
+        }
+    },
     0,
     {0, 128, 256, 384, 511, 634, 768, 900, 1023}, // tcslipx
     {0, 12, 25, 38, 50, 62, 75, 88, 100}, // tcslipy

@@ -162,10 +162,11 @@
 .equ ram_window.pg24.vvt_ctl_ms, ram_window.pg24+0x25e
 
 .equ ram_window.pg27, ram_window+0x400
+; XXX these values must match the actual offsets in ram_window.pg27.
 .equ ram_window.pg27.generic_pid_flags1, ram_window.pg27+0x1bd
-.equ ram_window.pg27.generic_pid_flags2,  ram_window.pg27+0x1be
-.equ ram_window.pg27.generic_pid_control_intervals1, ram_window.pg27+0x31b
-.equ ram_window.pg27.generic_pid_control_intervals2, ram_window.pg27+0x31c
+.equ ram_window.pg27.generic_pid_flags2,  ram_window.pg27+0x270
+.equ ram_window.pg27.generic_pid_control_intervals1, ram_window.pg27+0x26c
+.equ ram_window.pg27.generic_pid_control_intervals2, ram_window.pg27+0x31f
 
 .equ ram_window.vars2, ram_window+0xc00
 .equ v2.knk_clk, ram_window.vars2+0

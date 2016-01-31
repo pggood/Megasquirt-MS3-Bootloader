@@ -13,22 +13,23 @@
 
 #include "ms3.h"
 #include "config.h"
+#include "utils.h"
 
 static void convert_unitless_percent(int min, int max, int targ, int raw_PV,
-                                     long * PV, long * SP) FAR_TEXTf9_ATTR; 
+                                     long * PV, long * SP) FAR_TEXTf9_ATTR;
 
 static void convert_unitless_percent(int min, int max, int targ, int raw_PV,
                                      long * PV, long * SP)
 {
     *PV = (((long)raw_PV - min) * 10000L) /
-         (max - min);
+        (max - min);
     *SP = (((long)targ - min) * 10000L) /
-          (max - min);
+        (max - min);
 }
 
 long generic_pid_routine(int min, int max, int targ, int raw_PV,
                          int set_Kp, int set_Ki, int set_Kd, int looptime,
-                         long *PV_last_arg, long *last_error, 
+                         long * PV_last_arg, long * last_error,
                          unsigned char config)
 {
     long Kp, Ki, Kd, PV, SP, error, pid_deriv, tmp1;
@@ -36,14 +37,15 @@ long generic_pid_routine(int min, int max, int targ, int raw_PV,
 
     if (config & PID_LOOPTIME_RTC) {
         pid_divider = TICKS_PER_SECOND;
-        pid_multiplier = TICKS_PER_SECOND/10;
-    } else {
+        pid_multiplier = TICKS_PER_SECOND / 10;
+    }
+    else {
         pid_divider = 1000;
         pid_multiplier = 100;
     }
 
     convert_unitless_percent(min, max, targ, raw_PV, &PV, &SP);
-   
+
     error = SP - PV;
 
     /* Reset previous PV vals to same as PV to avoid
@@ -57,20 +59,22 @@ long generic_pid_routine(int min, int max, int targ, int raw_PV,
     pid_deriv = PV - (2 * PV_last_arg[0]) + PV_last_arg[1];
 
     if (config & PID_TYPE_C) {
-        Kp = ((long) ((PV - PV_last_arg[0]) * (long)set_Kp));
-    } else {
-        Kp = ((long) ((error - *last_error) * (long)set_Kp));
+        Kp = ((long)((PV - PV_last_arg[0]) * (long)set_Kp));
+    }
+    else {
+        Kp = ((long)((error - *last_error) * (long)set_Kp));
         *last_error = error;
     }
-    Ki = ((((long) error * looptime) / (long)pid_divider) * (long)set_Ki);
-    Kd = ((long) pid_deriv * (((long) set_Kd * pid_multiplier) / looptime));
+    Ki = ((((long)error * looptime) / (long)pid_divider) * (long)set_Ki);
+    Kd = ((long)pid_deriv * (((long)set_Kd * pid_multiplier) / looptime));
 
     PV_last_arg[1] = PV_last_arg[0];
     PV_last_arg[0] = PV;
 
     if (config & PID_TYPE_C) {
         tmp1 = Kp - Ki + Kd;
-    } else {
+    }
+    else {
         tmp1 = Kp + Ki - Kd;
     }
 
@@ -80,7 +84,7 @@ long generic_pid_routine(int min, int max, int targ, int raw_PV,
 /* outmult needs to be the multiplier to get to 2 decimal places of precision */
 long generic_ideal_pid_routine(int min, int max, int targ, int raw_PV,
                                int set_Kp, int set_Ki, int set_Kd,
-                               long *I_term_sum, long *last_error, int bias,
+                               long * I_term_sum, long * last_error, int bias,
                                int minoutput, int maxoutput, int outmult,
                                unsigned char config)
 {
@@ -88,7 +92,7 @@ long generic_ideal_pid_routine(int min, int max, int targ, int raw_PV,
     long tmp1;
 
     convert_unitless_percent(min, max, targ, raw_PV, &PV, &SP);
-   
+
     error = SP - PV;
 
     if (config & PID_INIT) {
@@ -100,12 +104,12 @@ long generic_ideal_pid_routine(int min, int max, int targ, int raw_PV,
     /* ensure full range of correction regardless of I term */
 
     tmp1 = ((maxoutput - bias) * (long)outmult * 100) / (long)set_Ki;
-   
-    if (tmp1 < 0) {
-       tmp1 = 0;
-    } 
 
-    if (*I_term_sum > tmp1) {
+    if (tmp1 < 0) {
+        tmp1 = 0;
+    }
+
+    if ( *I_term_sum > tmp1) {
         *I_term_sum = tmp1;
     }
 
@@ -115,7 +119,7 @@ long generic_ideal_pid_routine(int min, int max, int targ, int raw_PV,
         tmp1 = 0;
     }
 
-    if (*I_term_sum < -tmp1) {
+    if ( *I_term_sum < -tmp1) {
         *I_term_sum = -tmp1;
     }
 
@@ -132,65 +136,77 @@ long generic_ideal_pid_routine(int min, int max, int targ, int raw_PV,
 void generic_pid()
 {
     int i;
-
     RPAGE = tables[27].rpg;
 
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < NUM_GENERIC_PID; i++) {
+        generic_pid_context_st * generic_pid_context = &ram_window.pg27.generic_pid[i];
+
         /* Figure out if it's time for generic PID to run on this channel */
-        if (ram_window.pg27.generic_pid_flags[i] & GENERIC_PID_ON) {
-            if (flagbyte22 & (twopow[i])) {
+        if (generic_pid_context->flags & GENERIC_PID_ON)
+        {
+            if (flagbyte22 & BIT(i))
+            {
                 int load, target, PV;
                 long pidout;
                 char pidflags, ctmp;
 
                 DISABLE_INTERRUPTS;
-                flagbyte22 &= ~(twopow[i]);
+                flagbyte22 &= ~BIT(i);
                 ENABLE_INTERRUPTS;
 
                 /* Figure out load axis for PID target lookup */
-                load = calc_outpc_input(ram_window.pg27.generic_pid_load_sizes[i],
-                        ram_window.pg27.generic_pid_load_offsets[i]);
+                load = calc_outpc_input(generic_pid_context->load_sizes,
+                                        generic_pid_context->load_offsets);
 
                 /* Do PID target lookup */
                 target = intrp_2ditable(outpc.rpm, load, 8, 8,
-                        ram_window.pg27.generic_pid_axes3d[i][0],
-                        ram_window.pg27.generic_pid_axes3d[i][1],
-                        &ram_window.pg27.generic_pid_targets[i][0][0],
-                        27);
+                                        generic_pid_context->axes3d[0],
+                                        generic_pid_context->axes3d[1],
+                                        &generic_pid_context->targets[0][0],
+                                        27);
 
                 /* Figure out PV input (similar to load lookup) */
-                PV = calc_outpc_input(ram_window.pg27.generic_pid_PV_sizes[i],
-                        ram_window.pg27.generic_pid_PV_offsets[i]);
+                PV = calc_outpc_input(generic_pid_context->PV_sizes,
+                                      generic_pid_context->PV_offsets);
 
                 /* Run PID routine with appropriate flags */
-                ctmp = ram_window.pg27.generic_pid_flags[i] & GENERIC_PID_TYPE;
-                if (ctmp == GENERIC_PID_TYPE_B) {
+                ctmp = generic_pid_context->flags & GENERIC_PID_TYPE;
+                if (ctmp == GENERIC_PID_TYPE_B)
+                {
                     pidflags = PID_TYPE_B;
-                } else {
+                }
+                else
+                {
                     pidflags = PID_TYPE_C;
                 }
-                pidout = generic_pid_routine(ram_window.pg27.generic_pid_lower_inputlims[i],
-                                             ram_window.pg27.generic_pid_upper_inputlims[i],
+                pidout = generic_pid_routine(generic_pid_context->lower_inputlims,
+                                             generic_pid_context->upper_inputlims,
                                              target, PV,
-                                             ram_window.pg27.generic_pid_P[i],
-                                             ram_window.pg27.generic_pid_I[i],
-                                             ram_window.pg27.generic_pid_D[i],
-                                             ram_window.pg27.generic_pid_control_intervals[i],
+                                             generic_pid_context->P,
+                                             generic_pid_context->I,
+                                             generic_pid_context->D,
+                                             generic_pid_context->control_intervals,
                                              generic_PID_PV_last[i], &generic_PID_last_error[i],
                                              pidflags) / 1000;
 
                 /* Bound outputs to upper/lower limits */
 
-                if (ctmp == GENERIC_PID_TYPE_B) {
+                if (ctmp == GENERIC_PID_TYPE_B)
+                {
                     pidout += generic_pidouts_100[i];
-                } else {
+                }
+                else
+                {
                     pidout = generic_pidouts_100[i] - pidout;
                 }
 
-                if (pidout < (ram_window.pg27.generic_pid_output_lowerlims[i] * 100)) {
-                    pidout = ram_window.pg27.generic_pid_output_lowerlims[i] * 100;
-                } else if (pidout > (ram_window.pg27.generic_pid_output_upperlims[i] * 100)) {
-                    pidout = ram_window.pg27.generic_pid_output_upperlims[i] * 100;
+                if (pidout < (generic_pid_context->output_lowerlims * 100))
+                {
+                    pidout = generic_pid_context->output_lowerlims * 100;
+                }
+                else if (pidout > (generic_pid_context->output_upperlims * 100))
+                {
+                    pidout = generic_pid_context->output_upperlims * 100;
                 }
 
                 generic_pidouts_100[i] = pidout;
@@ -200,4 +216,5 @@ void generic_pid()
             }
         }
     }
+
 }

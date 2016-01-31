@@ -1345,6 +1345,35 @@ typedef struct {
     unsigned char off; /* Dest offset */
 } outmsg_stat;
 
+#define NUM_GENERIC_PID 2
+/* generic_pid bit flags   */
+#define GENERIC_PID_ON 0x1
+#define GENERIC_PID_TYPE 0x6
+#define GENERIC_PID_TYPE_B 2
+#define GENERIC_PID_TYPE_C 4
+#define GENERIC_PID_DIRECTION 0x8
+#define GENERIC_PID_OUTPUT_TYPE 0x10 /* bit set means stepper */
+#define GENERIC_PID_LOOKUP_TYPE 0x20 /* bit set means curve */
+
+typedef struct generic_pid_context_st
+{
+    unsigned char flags;
+    unsigned char pwm_opts; /* freq and load axis */
+    unsigned char pwm_outs; /* output to use for PWM */
+    unsigned int load_offsets;
+    unsigned char load_sizes;
+    int upper_inputlims; /* limits on input for unitless % conversion */
+    int lower_inputlims;
+    unsigned char output_upperlims;
+    unsigned char output_lowerlims;
+    unsigned int PV_offsets; /* Process Var (input) */
+    unsigned char PV_sizes;
+    int axes3d[2][8]; /* middle array 0 = rpm, 1 = load */
+    int targets[8][8];
+    unsigned char control_intervals;
+    unsigned char P, I, D;
+} generic_pid_context_st;
+
 //page27
 typedef struct _page27_data {
     unsigned char ego_auth_table[NO_FMAPS][NO_FRPMS]; // 12 x 12
@@ -1356,28 +1385,9 @@ typedef struct _page27_data {
     unsigned int ego_delay_rpms[NO_FRPMS];
     int ego_delay_loads[NO_FMAPS];
     unsigned char ego_sensor_delay;
-    unsigned char generic_pid_flags[2];
-#define GENERIC_PID_ON 0x1
-#define GENERIC_PID_TYPE 0x6
-#define GENERIC_PID_TYPE_B 2
-#define GENERIC_PID_TYPE_C 4
-#define GENERIC_PID_DIRECTION 0x8
-#define GENERIC_PID_OUTPUT_TYPE 0x10 /* bit set means stepper */
-#define GENERIC_PID_LOOKUP_TYPE 0x20 /* bit set means curve */
-    unsigned char generic_pid_pwm_opts[2]; /* freq and load axis */
-    unsigned char generic_pid_pwm_outs[2]; /* output to use for PWM */
-    unsigned int generic_pid_load_offsets[2]; 
-    unsigned char generic_pid_load_sizes[2];
-    int generic_pid_upper_inputlims[2]; /* limits on input for unitless % conversion */
-    int generic_pid_lower_inputlims[2];
-    unsigned char generic_pid_output_upperlims[2];
-    unsigned char generic_pid_output_lowerlims[2];
-    unsigned int generic_pid_PV_offsets[2]; /* Process Var (input) */
-    unsigned char generic_pid_PV_sizes[2];
-    int generic_pid_axes3d[2][2][8]; /* middle array 0 = rpm, 1 = load */
-    int generic_pid_targets[2][8][8];
-    unsigned char generic_pid_control_intervals[2];
-    unsigned char generic_pid_P[2], generic_pid_I[2], generic_pid_D[2];
+
+    generic_pid_context_st generic_pid[NUM_GENERIC_PID];
+
     unsigned char unused1;
     unsigned int tcslipx[9];
     unsigned char tcslipy[9];

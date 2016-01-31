@@ -9,5 +9,6 @@
 #define GPIO_ON(port, pin)  *(port) |= (pin)
 #define GPIO_OFF(port, pin) *(port) &= ~(pin)
 
+#define BIT(x) (twopow[x])
 
 #endif /* __UTILS_H__ */
