@@ -14,8 +14,11 @@
 #include "ms3.h"
 #include "config.h"
 
-void convert_unitless_percent(int min, int max, int targ, int raw_PV,
-                              long *PV, long *SP)
+static void convert_unitless_percent(int min, int max, int targ, int raw_PV,
+                                     long * PV, long * SP) FAR_TEXTf9_ATTR; 
+
+static void convert_unitless_percent(int min, int max, int targ, int raw_PV,
+                                     long * PV, long * SP)
 {
     *PV = (((long)raw_PV - min) * 10000L) /
          (max - min);
