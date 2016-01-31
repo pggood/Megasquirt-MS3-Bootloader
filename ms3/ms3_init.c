@@ -4776,8 +4776,8 @@ void var_init()
     stall_timeout = 18750 / num_cyl;    // calculate stall timeout once
     OVERRUN_STOP_TIMER();
     OVERRUN_SET_TO_OFF();
-    fc_retard_time = 0;
-    fc_ae = 0;
+    fuel_cut_retard_time = 0;
+    fuel_cut_ae = 0;
     adc_ctr = 10; // 10ms
     lowres_ctr = 0;
     tacho_targ = 0;
@@ -4786,7 +4786,7 @@ void var_init()
     bl_timer = 0;
     n2o_act_timer = 0;
     n2o2_act_timer = 0;
-    fc_off_time = 0xfe;
+    fuel_cut_off_time = 0xfe;
     
     /* bogus default date */
 //    datax1.rtc_sec = 0;

@@ -107,7 +107,7 @@
 .equ ram4.pwmidleset,    ram4+269
 .equ ram4.tacho_opt,     ram4+279
 .equ ram4.tacho_opt2,    ram4+281
-.equ ram4.fc_ego_delay,  ram4+280
+.equ ram4.fuel_cut_ego_delay,  ram4+280
 .equ ram4.feature3,      ram4+286
 .equ ram4.N2Oopt2,       ram4+323
 .equ ram4.RotarySplitMode,  ram4+352

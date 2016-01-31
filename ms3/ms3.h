@@ -296,7 +296,7 @@ typedef struct _page4_data {
     unsigned char IACcurlim, spare67;
     unsigned int reluctorteeth2;
     int boosttol, OverBoostKpa2;
-    unsigned int fc_rpm_lower;
+    unsigned int fuel_cut_rpm_lower;
     unsigned char OverBoostOption;
     unsigned char hardware;     // determines what hardware connections in use MS3X etc.
     int OverBoostKpa;
@@ -483,11 +483,11 @@ typedef struct _page4_data {
 #define TSW_S_ONOFFVVT  0x80
     unsigned char tsw_pin_s;      // fuel/spark hardware table switch pins
     unsigned char pwmidlecranktaper, knk_step_adv;    // knock advance step size
-    unsigned int fc_rpm;
-    int fc_kpa, fc_tps, fc_clt; // overrun fuel cut >rpm, <kpa, >tps, >clt
-    unsigned char fc_delay;     // > time in 0.1s units
+    unsigned int fuel_cut_rpm;
+    int fuel_cut_kpa, fuel_cut_tps, fuel_cut_clt; // overrun fuel cut >rpm, <kpa, >tps, >clt
+    unsigned char fuel_cut_delay;     // > time in 0.1s units
     unsigned char tacho_opt;    // tacho output option
-    unsigned char fc_ego_delay;
+    unsigned char fuel_cut_ego_delay;
     unsigned char tacho_opt2;
     unsigned int tacho_scale;
     unsigned int xEAElagRPMmax; /* EAElag removed 2014-09-08 */
@@ -883,7 +883,7 @@ typedef struct _page5_data {
     unsigned char hpte_opt;
     int hpte_load;
     unsigned int hpte_rpm;
-    unsigned char shiftlight_opt, fc_trans_time_ret;
+    unsigned char shiftlight_opt, fuel_cut_trans_time_ret;
     unsigned int shiftlight_limit[6];
     unsigned char ltt_samp_time, ltt_agg;
     unsigned char oilpress_in, oilpress_out;
@@ -892,9 +892,9 @@ typedef struct _page5_data {
     unsigned int alternator_sensitivity;
     unsigned int idleminvss;
     unsigned int flex_baseline;
-    unsigned char fc_transition_time, fc_ae_time;
-    int fc_timing;
-    unsigned char fc_ae_pct;
+    unsigned char fuel_cut_transition_time, fuel_cut_ae_time;
+    int fuel_cut_timing;
+    unsigned char fuel_cut_ae_pct;
     unsigned char fp_off_duty, fp_min_duty, fp_max_duty;
     unsigned char tcs_in, tcs_moves;
     unsigned int tcs_offtime, tcs_ontime;
@@ -1747,7 +1747,7 @@ mapden: equ     7
     int batt_curr;
     int fueltemp_cor, fuelpress_cor;
     char ltt_cor, sp1;
-    int tc_retard, cel_retard, fc_retard, ext_advance;
+    int tc_retard, cel_retard, fuel_cut_retard, ext_advance;
     int base_advance, idle_cor_advance, mat_retard, flex_advance;
     int adv1, adv2, adv3, adv4;
     int revlim_retard, als_timing, als_addfuel, deadtime1;

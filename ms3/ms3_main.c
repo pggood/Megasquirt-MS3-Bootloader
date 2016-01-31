@@ -304,17 +304,17 @@ int main(void)
                 }
             }
 
-            if (fc_ae) { /* AE type event at end of fuel-cut */
-                unsigned long fc_ae_tmp;
-                fc_ae_tmp = fc_ae * (long)ReqFuel;
+            if (fuel_cut_ae) { /* AE type event at end of fuel-cut */
+                unsigned long fuel_cut_ae_tmp;
+                fuel_cut_ae_tmp = fuel_cut_ae * (long)ReqFuel;
 
-                lsum_fuel1 += fc_ae_tmp;
+                lsum_fuel1 += fuel_cut_ae_tmp;
                 /* bound to 0-65535 usec */
                 if (lsum_fuel1 > 6553500) {
                     lsum_fuel1 = 6553500;
                 }
 
-                lsum_fuel2 += fc_ae_tmp;
+                lsum_fuel2 += fuel_cut_ae_tmp;
                 /* bound to 0-65535 usec */
                 if (lsum_fuel2 > 6553500) {
                     lsum_fuel2 = 6553500;
@@ -414,22 +414,22 @@ END_FUEL:;
         linelock_staging();
         pitlim(); /* launch spark tweaked in here */
 
-        if (fc_retard_time && (ram4.OvrRunC & (OVRRUNC_RETIGN | OVRRUNC_PROGIGN))) { // fuel cut timing - either into cut or out of cut
+        if (fuel_cut_retard_time && (ram4.OvrRunC & (OVRRUNC_RETIGN | OVRRUNC_PROGIGN))) { // fuel cut timing - either into cut or out of cut
             long max_retard, act_retard;
-            if (ram5.fc_timing < lsum_ign) { // check we aren't already more retarded
-                max_retard = lsum_ign - ram5.fc_timing; // total amount of retard
+            if (ram5.fuel_cut_timing < lsum_ign) { // check we aren't already more retarded
+                max_retard = lsum_ign - ram5.fuel_cut_timing; // total amount of retard
                 if (OVERRUN_IS_TRANSITIONING_OFF()) {
-                    act_retard = (max_retard * (long)fc_retard_time) / ram5.fc_trans_time_ret; // return
+                    act_retard = (max_retard * (long)fuel_cut_retard_time) / ram5.fuel_cut_trans_time_ret; // return
                 }
                 else
                 {
-                    act_retard = (max_retard * (long)fc_retard_time) / ram5.fc_transition_time; // cut
+                    act_retard = (max_retard * (long)fuel_cut_retard_time) / ram5.fuel_cut_transition_time; // cut
                 }
                 lsum_ign -= act_retard;
-                outpc.fc_retard = act_retard;
+                outpc.fuel_cut_retard = act_retard;
             }
         } else {
-            outpc.fc_retard = 0;
+            outpc.fuel_cut_retard = 0;
         }
 
         /* Is this enough for anti-lag ? */

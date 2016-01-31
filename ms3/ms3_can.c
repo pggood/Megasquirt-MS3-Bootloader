@@ -1407,7 +1407,7 @@ void can_bcast_outpc(unsigned int gp)
     } else if (gp == 56) {
         *(int*)&data[0] = outpc.tc_retard;
         *(int*)&data[2] = outpc.cel_retard;
-        *(int*)&data[4] = outpc.fc_retard;
+        *(int*)&data[4] = outpc.fuel_cut_retard;
         *(int*)&data[6] = outpc.als_addfuel;
 
     } else if (gp == 57) {

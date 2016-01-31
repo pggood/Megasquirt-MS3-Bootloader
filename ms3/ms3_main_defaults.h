@@ -59,7 +59,7 @@ const page4_data dflash4 CNFDATA2_ATTR = {
     4000,                         // vss reluctorteeth2 x 0.01
     400,                        // boosttol
     1000,                       // OverBoostKpa2
-    1100,                       // fc_rpm_lower
+    1100,                       // fuel_cut_rpm_lower
     0,                          //overboostoption
     0x7a,                       // hardware. MS3X fuel, MS3X spark, MS3X cam, H3+4 for injI/J
     1000,
@@ -209,7 +209,7 @@ const page4_data dflash4 CNFDATA2_ATTR = {
     900,                        // fc >clt
     15,                         // fc >time
     7,                          // tacho out off, defaults to 'tacho'
-    0,                          // fc_ego_delay
+    0,                          // fuel_cut_ego_delay
     0,                          // tacho opt2
     1000,                       // tacho scale
     0, // spare
@@ -503,7 +503,7 @@ const page5_data dflash5 CNFDATA2_ATTR = {
     {0, 0}, 200, // alternator min/max/sens
     0, // idleminvss
     0, // baseline eth% for backwards compat
-    5,0,0,0, // fc_transition fc_ae
+    5,0,0,0, // fuel_cut_transition fuel_cut_ae
     0,0,255, // FP off/min/max duties
     0, 1, 50, 100, // TCS turbo car staging
     {1000,1000,1000,1000,1000,1000}, // boostgeartarg

@@ -101,7 +101,7 @@ void ego_calc(void)
           && ((outpc.afrload > ram4.MAPOXLimit) || (outpc.afrload < ram4.MAPOXMin) || (outpc.rpm < ram4.RPMOXLimit)))
         || (uctmp < ram4.ego_startdelay)
         || ((pwcalc1 == 0) && (pwcalc2 == 0))
-        || (ram4.fc_ego_delay && (fc_off_time < ram4.fc_ego_delay))
+        || (ram4.fuel_cut_ego_delay && (fuel_cut_off_time < ram4.fuel_cut_ego_delay))
         || ((ram4.egoAlgorithm & 0x03) == 3)
         || stat_afr0
         || (outpc.status3 & (STATUS3_REVLIMSFT | STATUS3_BIKESHIFT))

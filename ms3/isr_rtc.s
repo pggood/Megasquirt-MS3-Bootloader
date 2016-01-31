@@ -1586,9 +1586,9 @@ kn_ok16:
 
 no_knk_timers:
 
-   tst     fc_counter
+   tst     fuel_cut_counter
    beq     no_fc
-   dec     fc_counter
+   dec     fuel_cut_counter
 
 no_fc:
 ;anti-lag timer
@@ -1682,19 +1682,19 @@ idle_shift_timer:
 
 running_timer:
    ldd    outpc.rpm  ; if rpm is 0, don't increment this counter
-   beq    fc_ego_timer 
+   beq    fuel_cut_ego_timer 
    ldaa   running_seconds
    cmpa   #255
-   beq    fc_ego_timer
+   beq    fuel_cut_ego_timer
    inca
    staa   running_seconds
 
-fc_ego_timer:
-   ldaa   fc_off_time
-   cmpa   ram4.fc_ego_delay
+fuel_cut_ego_timer:
+   ldaa   fuel_cut_off_time
+   cmpa   ram4.fuel_cut_ego_delay
    bhs    ac_last_on_timer 
    inca
-   staa   fc_off_time
+   staa   fuel_cut_off_time
 
 ac_last_on_timer:
    ldaa   ac_time_since_last_on

@@ -655,8 +655,8 @@ extern volatile unsigned char flagbyte25;
 extern unsigned long stall_timeout;     // save doing long div each 0.128ms
 extern unsigned char last_fsensdat;
 extern unsigned int FPdcounter, ff_pw;
-extern unsigned char fc_counter, adc_ctr, fc_phase, fc_retard_time;
-extern unsigned int fc_ae, fc_lmms;
+extern unsigned char fuel_cut_counter, adc_ctr, fuel_cut_phase, fuel_cut_retard_time;
+extern unsigned int fuel_cut_ae, fuel_cut_lmms;
 extern unsigned int lowres_ctr, tacho_targ;     // 0.128ms period counters (like MS1) for tacho
 //spark cut
 extern unsigned char fuel_cutx, fuel_cuty, fuel_cuti;
@@ -672,7 +672,7 @@ extern unsigned char pwmd1, pwmd2, trig2cnt, trig2cnt_last, bl_timer,
     n2o_act_timer, n2o2_act_timer, trig3cnt, vvt_decoder, trig4cnt, trig5cnt;
 extern unsigned int mapsample_time, tpssample_time;     //.128 ms ticks
 extern unsigned char running_seconds;
-extern unsigned char fc_off_time;
+extern unsigned char fuel_cut_off_time;
 extern unsigned long tmp_pw1, tmp_pw2, ticks_per_deg, global_base_pw1;
 extern unsigned char tooth_init, tooth_counter, tooth_counter_main;
 #define WHEEL_NUM_TEETH 20      // minimal to allow all teeth to be grabbed in mainloop exec time
