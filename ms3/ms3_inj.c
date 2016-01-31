@@ -407,7 +407,7 @@ void calc_staged_pw(unsigned long base_pw)
             if (!(flagbyte17 & FLAGBYTE17_DONEFLAPS)) {
                 unsigned int t;
                 t = (unsigned int)lmms - staged_flaptimer;
-                t /= TICKS_PER_SECOND/10;
+                t /= TICKS_PER_SECOND / 10;
                 if (t > ram5.staged_out2_time) {
                     flagbyte17 &= ~FLAGBYTE17_DONEFLAPS;
                 }
@@ -1671,7 +1671,7 @@ char crank_calcs(void)
                 lmms1 = lmms;
                 ENABLE_INTERRUPTS;
                 lmms1 = lmms1 - lmms_crank; // how long since we started cranking
-                lmms1 /= TICKS_PER_SECOND/10; // convert to 0.1s
+                lmms1 /= TICKS_PER_SECOND / 10; // convert to 0.1s
             }
             p = intrp_1ditable((int)lmms1, 6,
                                (int *)ram_window.pg11.cranktaper_time, 0,
@@ -3380,30 +3380,31 @@ void flex_fuel_calcs()
 //    outpc.status4 = flexblend;
 }
 
-void do_overrun_fuel_cut_calculations(void)
-{
-    unsigned int rpm_droprate = 0, fuel_cut_rpm_lim = ram4.fuel_cut_rpm_lower;
+static void do_overrun_reengage_calculations(unsigned int * const rpm_droprate) FAR_TEXTf1_ATTR;
 
-    //flagbyte17 &= ~FLAGBYTE17_OVERRUNFC; // only checked in mainloop code
+static void do_overrun_reengage_calculations(unsigned int * const rpm_droprate)
+{
     /* Figure out what RPM we want to re-enable fuel at if variable fuel re-engagement is on */
 
     if ((ram4.OvrRunC & OVRRUNC_ON) && ((flagbyte2 & flagbyte2_crank_ok) == 0)) { // also check that not just after cranking
+        unsigned int fuel_cut_rpm_lim = ram4.fuel_cut_rpm_lower;
 
         if (outpc.rpmdot < 0) {
-            rpm_droprate = -outpc.rpmdot;
+            *rpm_droprate = -outpc.rpmdot;
 
-            if (rpm_droprate >= ram4.fuelcut_fuelon_upper_rpmdot) {
+            if ( *rpm_droprate >= ram4.fuelcut_fuelon_upper_rpmdot) {
                 fuel_cut_rpm_lim = ram4.fuel_cut_rpm;
             }
-            else if (rpm_droprate <= ram4.fuelcut_fuelon_lower_rpmdot) {
-                /* empty block. variable was assigned when declared */ 
+            else if ( *rpm_droprate <= ram4.fuelcut_fuelon_lower_rpmdot) {
+                /* empty block. fuel_cut_rpm_lim variable was assigned to the 
+                   value we want when declared */
             }
             else {
                 /* How far between the upper and lower rpmdots are we? */
-                rpm_droprate = (((unsigned long)rpm_droprate - ram4.fuelcut_fuelon_lower_rpmdot) * 100UL) /
+                *rpm_droprate = (((unsigned long) *rpm_droprate - ram4.fuelcut_fuelon_lower_rpmdot) * 100UL) /
                     ((unsigned long)ram4.fuelcut_fuelon_upper_rpmdot - ram4.fuelcut_fuelon_lower_rpmdot);
                 /* Figure out the corresponding RPM that we should cut fuel back in at based on the above */
-                fuel_cut_rpm_lim = ram4.fuel_cut_rpm + ((((unsigned long)ram4.fuel_cut_rpm - ram4.fuel_cut_rpm_lower) * rpm_droprate) / 100UL);
+                fuel_cut_rpm_lim = ram4.fuel_cut_rpm + ((((unsigned long)ram4.fuel_cut_rpm - ram4.fuel_cut_rpm_lower) * *rpm_droprate) / 100UL);
             }
         }
 
@@ -3414,9 +3415,9 @@ void do_overrun_fuel_cut_calculations(void)
                 OVERRUN_START_FUEL_CUT_ON_DELAY_TIMER();
             }
         }
-        else if ((outpc.rpm < fuel_cut_rpm_lim) 
-                 || (outpc.map >= ram4.fuel_cut_kpa) 
-                 || (outpc.tps >= ram4.fuel_cut_tps) 
+        else if ((outpc.rpm < fuel_cut_rpm_lim)
+                 || (outpc.map >= ram4.fuel_cut_kpa)
+                 || (outpc.tps >= ram4.fuel_cut_tps)
                  || (outpc.clt <= ram4.fuel_cut_clt)) {
             if (OVERRUN_IS_NOT_YET_ON()) {
                 OVERRUN_SET_TO_OFF();
@@ -3424,7 +3425,7 @@ void do_overrun_fuel_cut_calculations(void)
             else if (OVERRUN_IS_ON()) {
                 // transition back or jump to full fuel ?
                 if ((ram4.OvrRunC & (OVRRUNC_RETIGN | OVRRUNC_PROGRET)) && (outpc.tps < ram4.fuel_cut_tps) // fuel or spark transition on return and throttle shut
-                    && (rpm_droprate < ram4.fuelcut_fuelon_lower_rpmdot)) { // but revs not plummeting (clutch in)
+                    && ( *rpm_droprate < ram4.fuelcut_fuelon_lower_rpmdot)) { // but revs not plummeting (clutch in)
                     OVERRUN_START_FUEL_CUT_OFF_DELAY_TIMER();
                 }
                 else {
@@ -3449,8 +3450,12 @@ void do_overrun_fuel_cut_calculations(void)
         OVERRUN_SET_TO_OFF();
     }
 
-    /* handle state machine */
+}
 
+static void do_overrun_state_machine(unsigned int const rpm_droprate) FAR_TEXTf1_ATTR;
+static void do_overrun_state_machine(unsigned int const rpm_droprate)
+{
+    /* handle state machine */
     if (OVERRUN_IS_OFF()) {
         fuel_cut_retard_time = 0;
         fuel_cut_ae = 0;
@@ -3459,16 +3464,13 @@ void do_overrun_fuel_cut_calculations(void)
     }
     else if (OVERRUN_IS_IN_ON_DELAY()) {
         fuel_cut_retard_time = 0;
-        if (OVERRUN_TIMER_ELAPSED())
-        {
+        if (OVERRUN_TIMER_ELAPSED()) {
             if ((ram4.OvrRunC & OVRRUNC_PROGIGN) // fuel or spark transition to fuel-cut
-                || ((ram4.OvrRunC & OVRRUNC_PROGCUT) && ((flagbyte4 & FLAGBYTE4_STAGING_ON) == 0)))
-            {
+                || ((ram4.OvrRunC & OVRRUNC_PROGCUT) && ((flagbyte4 & FLAGBYTE4_STAGING_ON) == 0))) {
                 OVERRUN_START_FUEL_CUT_TRANSITION_ON_TIMER();
                 OVERRUN_SET_TO_TRANSITIONING_ON();
             }
-            else // no transition
-            {
+            else { // no transition
                 //flagbyte17 |= FLAGBYTE17_OVERRUNFC;
                 OVERRUN_SET_TO_ON();
                 fuel_cut_off_time = 0xff;
@@ -3478,7 +3480,7 @@ void do_overrun_fuel_cut_calculations(void)
     }
     else if (OVERRUN_IS_TRANSITIONING_ON()) {
         unsigned int elapsed_transition_time;
-        
+
         elapsed_transition_time = OVERRUN_ELAPSED_TRANSITION_TIME();
         if (ram4.OvrRunC & OVRRUNC_PROGIGN) {
             fuel_cut_retard_time = elapsed_transition_time; // apply timing change on cut
@@ -3543,7 +3545,7 @@ void do_overrun_fuel_cut_calculations(void)
         }
 
         lmms_t = (unsigned int)lmms;
-        if ((lmms_t - fuel_cut_lmms) > ((unsigned int)ram5.fuel_cut_ae_time * (TICKS_PER_SECOND/100))) {
+        if ((lmms_t - fuel_cut_lmms) > ((unsigned int)ram5.fuel_cut_ae_time * (TICKS_PER_SECOND / 100))) {
             fuel_cut_ae = 0;
             fuel_cut_off_time = 0; // up counter until EGO can run again
         }
@@ -3573,6 +3575,16 @@ void do_overrun_fuel_cut_calculations(void)
             }
         }
     }
+}
+
+void do_overrun_fuel_cut_calculations(void)
+{
+    unsigned int rpm_droprate = 0;
+
+    //flagbyte17 &= ~FLAGBYTE17_OVERRUNFC; // only checked in mainloop code
+    do_overrun_reengage_calculations(&rpm_droprate);
+
+    do_overrun_state_machine(rpm_droprate);
 }
 
 /**************************************************************************
@@ -4298,7 +4310,7 @@ void hpte(void)
         }
 
         if (flagbyte17 & FLAGBYTE17_HPTE) {
-            timer2 = hpte_timer / (TICKS_PER_SECOND/10); // into 0.1s units
+            timer2 = hpte_timer / (TICKS_PER_SECOND / 10); // into 0.1s units
             RPAGE = tables[25].rpg;
             if (timer2 > ram_window.pg25.hpte_times[5]) {
                 timer2 = ram_window.pg25.hpte_times[5];
