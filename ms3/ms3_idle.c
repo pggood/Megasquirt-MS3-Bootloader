@@ -163,7 +163,7 @@ void fan_ctl_idleup(void)
                 return;
             }
         } else { // do
-            if ((outpc.engine & ENGINE_CRANK) || (outpc.batt < 100)) {
+            if ((outpc.engine & ENGINE_CRANK) || (outpc.batt < MIN_BATTERY_VOLTAGE_FOR_FAN)) {
                 TURN_FAN_OFF_UPDATE_STATUS(); // but off when cranking
                 return;
             }

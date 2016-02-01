@@ -111,6 +111,7 @@
 
 #include "ms3.h"
 #include "overrun.h"
+#include "utils.h"
 #include "config.h"
 
 /**************************************************************************
@@ -126,7 +127,7 @@ signed int calc_opentime(unsigned char inj_no)
     int tmp1, tmp2, curve_no;
 
     // pick curve and lookup base opentime
-    if (pin_dualfuel && (ram5.dualfuel_sw2 & 0x04) && (( *port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) {
+    if (pin_dualfuel && (ram5.dualfuel_sw2 & 0x04) && ((*port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) {
         if ((inj_no < 8) && ((ram5.opentime2_opt[0] & 0x80) == 0)) {
             // shared settings from MS3X inj A
             inj_no = 0;
@@ -145,12 +146,8 @@ signed int calc_opentime(unsigned char inj_no)
     // get correction %age
     tmp1 = intrp_1ditable(outpc.batt, 6, (int *)ram_window.pg10.opentimev, 0,
                           (int *)&ram_window.pg10.opentime[curve_no][0], 10);
-    if (tmp1 < 0) {
-        tmp1 = 0;
-    }
-    else if (tmp1 > 5000) {
-        tmp1 = 5000;
-    }
+    LIMIT(tmp1, 0, 5000);
+
     // scale
     __asm__ __volatile__ (
     "emuls\n"
@@ -174,7 +171,7 @@ unsigned int smallpw(unsigned int pw_in, unsigned char inj_no)
     RPAGE = tables[10].rpg;     // load page into ram window, to check upper value
 
     // pick curve and lookup base opentime
-    if (pin_dualfuel && (ram5.dualfuel_sw2 & 0x08) && (( *port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) {
+    if (pin_dualfuel && (ram5.dualfuel_sw2 & 0x08) && ((*port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) {
         curve_no = ram5.smallpw2_opt[(int)inj_no] & 0x03;
     }
     else {

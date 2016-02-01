@@ -11,6 +11,6 @@
 #define MILLISECS_TO_TICKS(millisecs) ((unsigned long)TICKS_PER_SECOND/(1000/(millisecs)))
 
 #define MAX_RETARD_ANGLE_DECIDEGREES() -450
-
+#define MIN_BATTERY_VOLTAGE_FOR_FAN     100 /* value is in Volts * 10 */
 
 #endif /* __CONFIG_H__ */

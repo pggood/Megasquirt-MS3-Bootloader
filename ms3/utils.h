@@ -11,4 +11,6 @@
 
 #define BIT(x) (twopow[x])
 
+#define LIMIT(val, min, max) do {if ((val) < (min)) val = min; else if ((val) > (max)) (val) = (max);} while (0);
+
 #endif /* __UTILS_H__ */

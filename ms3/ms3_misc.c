@@ -594,22 +594,25 @@ int twoptlookup(unsigned int x, unsigned int x0, unsigned int x1,
 
     // bound input arguments
     if (x >= x1) {
-        return (y1);
+        result = y1;
+    }
+    else if (x <= x0) {
+        result = y0;
+    }
+    else {  /* somewhere in the middle */
+
+        interp = (long) x1 - (long) x0;
+        interp3 = ((long) x - (long) x0);
+        interp3 = (100 * interp3);
+        interp = interp3 / interp;
+        /* interp is now a percentage of the x range */
+
+        /* get that same percentage of the y range and add it to y0 */
+        interp = interp * ((long) y1 - (long) y0) / 100;
+        result = (int) ((long) y0 + interp);
     }
 
-    if (x <= x0) {
-        return (y0);
-    }
-
-    interp = (long) x1 - (long) x0;
-    interp3 = ((long) x - (long) x0);
-    interp3 = (100 * interp3);
-    interp = interp3 / interp;
-
-    interp = interp * ((long) y1 - (long) y0) / 100;
-    result = (int) ((long) y0 + interp);
-
-    return (result);
+    return result;
 }
 
 void dribble_burn()
@@ -1498,7 +1501,7 @@ void nitrous()
         }
         // is enable input on
         //check if the chosen pin is low
-        if (((*port_n2oin & pin_n2oin) == pin_match_n2oin) && pin_n2oin)
+        if (pin_n2oin && (( *port_n2oin & pin_n2oin) == pin_match_n2oin))
             goto DO_NITROUS;
 
         // no valid input so turn it off
