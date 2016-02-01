@@ -11,6 +11,11 @@
 
 #define BIT(x) (twopow[x])
 
-#define LIMIT(val, min, max) do {if ((val) < (min)) val = min; else if ((val) > (max)) (val) = (max);} while (0);
+#define LIMIT(val, min, max) \
+            do {if ((val) < (min)) val = min; else if ((val) > (max)) (val) = (max);} while (0);
+
+#define GPIO_ACTIVE(gpio) \
+            (pin_ ## gpio  && ((*port_ ## gpio & pin_ ## gpio) == pin_match_ ## gpio))
+
 
 #endif /* __UTILS_H__ */

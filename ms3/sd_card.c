@@ -29,6 +29,7 @@
 #include "SD.h"
 #include "ms3.h"
 #include "config.h"
+#include "utils.h"
 
 #define LOG_SIZE 64
 #define MIN_LOG_INT 15 // 2ms
@@ -415,7 +416,7 @@ void do_sdcard(void)
         if ((ram4.log_style & 0xc0) == 0x80) {    // button
             // check for the buttons
             if (flagbyte6 & FLAGBYTE6_SD_DEBOUNCE) {    // is button released yet
-                if ((*port_sdbut & pin_sdbut) != pin_match_sdbut) {
+                if (!GPIO_ACTIVE(sdbut)) {
                     flagbyte6 &= ~FLAGBYTE6_SD_DEBOUNCE;
                     DISABLE_INTERRUPTS;
                     sd_lmms_last2 = lmms;       // using this to debounce next press
@@ -424,7 +425,7 @@ void do_sdcard(void)
 
             } else {
                 // has button been pressed to end the log?
-                if ((*port_sdbut & pin_sdbut) == pin_match_sdbut) {
+                if (GPIO_ACTIVE(sdbut)) {
                     unsigned long ul_tmpb;
                     DISABLE_INTERRUPTS;
                     ul_tmpb = lmms;
@@ -2114,7 +2115,7 @@ void do_sdcard(void)
                 }                    
             } else {
                 // check for the buttons
-                if (pin_sdbut && ((*port_sdbut & pin_sdbut) == pin_match_sdbut)) {
+                if (GPIO_ACTIVE(sdbut)) {
                     flagbyte6 |= FLAGBYTE6_SD_DEBOUNCE;
                     DISABLE_INTERRUPTS;
                     sd_lmms_last2 = lmms;
@@ -2138,7 +2139,7 @@ void do_sdcard(void)
         } else {
             // check for the buttons
             // if button off and didn't make the 500ms time, then go back to waiting
-            if ((*port_sdbut & pin_sdbut) != pin_match_sdbut) {
+            if (!GPIO_ACTIVE(sdbut)) {
                 flagbyte6 &= ~FLAGBYTE6_SD_DEBOUNCE;
                 sd_phase = 0x2c;
             }

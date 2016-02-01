@@ -61,6 +61,7 @@
 
 #include "overrun.h"
 #include "config.h"
+#include "utils.h"
 
 int main(void)
 {
@@ -689,7 +690,7 @@ EVERY_TOOTH:
 
         calc_fuelflow();
 
-        if (pin_tsw_rf && ((*port_tsw_rf & pin_tsw_rf) == pin_match_tsw_rf)) {  // Reqfuel switching
+        if (GPIO_ACTIVE(tsw_rf)) {  // Reqfuel switching
             if ((orig_ReqFuel != ram4.ReqFuel_alt) || (orig_divider != ram4.Divider) || (orig_alternate != ram4.Alternate)) {
                 /* User changed ReqFuel, recalculate the one we actually use */
                 calc_reqfuel(ram4.ReqFuel_alt);

@@ -171,9 +171,10 @@ void cp_flash_ram(void)
 
 void set_prime(void)
 {
-    if (pin_dualfuel && (ram5.dualfuel_sw2 & 0x01) && ((*port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) {
-        PrimeP = (unsigned short) CW_table(outpc.clt, (int *) ram_window.pg21.CWPrime2, (int *) ram_window.pg21.temp_table_p21, 21);     // msx10
-    } else {
+    if (GPIO_ACTIVE(dualfuel) && (ram5.dualfuel_sw2 & 0x01)) {
+        PrimeP = (unsigned short)CW_table(outpc.clt, (int *)ram_window.pg21.CWPrime2, (int *)ram_window.pg21.temp_table_p21, 21);     // msx10
+    }
+    else {
         PrimeP = (unsigned short) CW_table(outpc.clt, (int *) ram_window.pg8.CWPrime, (int *) ram_window.pg8.temp_table_p5, 8);     // msx10
     }
 }
@@ -4106,7 +4107,7 @@ Typical digout list
         }
     }
 
-    if (ram4.tsw_pin_rf && pin_tsw_rf && ((*port_tsw_rf & pin_tsw_rf) == pin_match_tsw_rf)) {      // Reqfuel switching
+    if (ram4.tsw_pin_rf && GPIO_ACTIVE(tsw_rf)) {      // Reqfuel switching
         calc_reqfuel(ram4.ReqFuel_alt);
     } else {
         calc_reqfuel(ram4.ReqFuel);

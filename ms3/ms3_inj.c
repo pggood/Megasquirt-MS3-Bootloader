@@ -127,7 +127,7 @@ signed int calc_opentime(unsigned char inj_no)
     int tmp1, tmp2, curve_no;
 
     // pick curve and lookup base opentime
-    if (pin_dualfuel && (ram5.dualfuel_sw2 & 0x04) && ((*port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) {
+    if (GPIO_ACTIVE(dualfuel) && (ram5.dualfuel_sw2 & 0x04)) {
         if ((inj_no < 8) && ((ram5.opentime2_opt[0] & 0x80) == 0)) {
             // shared settings from MS3X inj A
             inj_no = 0;
@@ -171,7 +171,7 @@ unsigned int smallpw(unsigned int pw_in, unsigned char inj_no)
     RPAGE = tables[10].rpg;     // load page into ram window, to check upper value
 
     // pick curve and lookup base opentime
-    if (pin_dualfuel && (ram5.dualfuel_sw2 & 0x08) && ((*port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) {
+    if (GPIO_ACTIVE(dualfuel) && (ram5.dualfuel_sw2 & 0x08)) {
         curve_no = ram5.smallpw2_opt[(int)inj_no] & 0x03;
     }
     else {
@@ -1591,7 +1591,7 @@ char crank_calcs(void)
         else if (ram4.Alternate & 0x04) {
             w = 3;
         }
-        else if (pin_dualfuel && (ram5.dualfuel_sw2 & 0x02) && (( *port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) {
+        else if (GPIO_ACTIVE(dualfuel) && (ram5.dualfuel_sw2 & 0x02)) {
             w = 2;
         }
         else {
@@ -1685,7 +1685,7 @@ char crank_calcs(void)
         if ((ram5.dualfuel_sw & 0x1) && ((ram5.dualfuel_opt & DUALFUEL_OPT_MODE_MASK) == DUALFUEL_OPT_MODE_SWITCHING)
             && (ram5.dualfuel_opt & DUALFUEL_OPT_OUT) && pin_dualfuel) {
             // Dual Fuel on, Switching, different outputs
-            if (( *port_dualfuel & pin_dualfuel) == pin_match_dualfuel) {
+            if (GPIO_ACTIVE(dualfuel)) {
                 // if active, then kill PW1
                 tmp_pw1 = 0;
                 tmp_pw2 = (unsigned long)utmp1 * 100;
@@ -1805,7 +1805,7 @@ void warmup_calcs(void)
         && ((ram5.dualfuel_opt & DUALFUEL_OPT_MODE_MASK) == DUALFUEL_OPT_MODE_FLEXBLEND)) {
         w = 3;
     }
-    else if (pin_dualfuel && (ram5.dualfuel_sw & 0x40) && (( *port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) {
+    else if (GPIO_ACTIVE(dualfuel) && (ram5.dualfuel_sw & 0x40)) {
         w = 2;
     }
     else {
@@ -1981,7 +1981,7 @@ void normal_accel(void)
     }
     else if ((ram5.dualfuel_sw & 0x1) && (ram5.dualfuel_sw2 & 0x40)
              && ((ram5.dualfuel_opt & DUALFUEL_OPT_MODE_MASK) == DUALFUEL_OPT_MODE_SWITCHING)
-             && pin_dualfuel && (( *port_dualfuel & pin_dualfuel) == pin_match_dualfuel)
+             && GPIO_ACTIVE(dualfuel)
             ) {
         w = 2;
     }
@@ -2352,7 +2352,7 @@ void new_accel(long * lsum1, long * lsum2)
     }
     else if ((ram5.dualfuel_sw & 0x1) && (ram5.dualfuel_sw2 & 0x40)
              && ((ram5.dualfuel_opt & DUALFUEL_OPT_MODE_MASK) == DUALFUEL_OPT_MODE_SWITCHING)
-             && pin_dualfuel && (( *port_dualfuel & pin_dualfuel) == pin_match_dualfuel)
+             && GPIO_ACTIVE(dualfuel)
             ) {
         w = 2;
     }
@@ -2509,14 +2509,14 @@ void main_fuel_calcs(long * lsum1, long * lsum2)
      **************************************************************************/
     uctmp = 0;                  //uctmp is local tmp var
     if ((ram5.dualfuel_sw & 0x03) == 0x03) { // on and fuel
-        if (pin_tsf && (( *port_tsf & pin_tsf) == pin_match_tsf)) {       // Hardware table switching
+        if (GPIO_ACTIVE(tsf)) {       // Hardware table switching
             uctmp = 1;
         }
     }
     else {
         if (ram4.feature5_0 & TSW_F_ON) {      //  table switching
             if ((ram4.feature5_0 & TSW_F_INPUTS) == 0) {
-                if (pin_tsf && (( *port_tsf & pin_tsf) == pin_match_tsf)) {       // Hardware table switching
+                if (GPIO_ACTIVE(tsf)) {       // Hardware table switching
                     uctmp = 1;
                 }
             }
@@ -2739,7 +2739,7 @@ void main_fuel_calcs(long * lsum1, long * lsum2)
 
         //Dual fuel correction tables
         /* now included in GammaE (2012-10-30) */
-        if (pin_dualfuel && (( *port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) { // dual fuel switch active
+        if (GPIO_ACTIVE(dualfuel)) {
             if (ram5.dualfuel_opt & DUALFUEL_OPT_TEMP) { // dual fuel switch - temperature table
                 int adj, temperature, i;
                 unsigned char t;
@@ -2987,7 +2987,7 @@ void main_fuel_calcs(long * lsum1, long * lsum2)
     if ((ram5.dualfuel_sw & 0x1) && ((ram5.dualfuel_opt & DUALFUEL_OPT_MODE_MASK) == DUALFUEL_OPT_MODE_SWITCHING)
         && (ram5.dualfuel_opt & DUALFUEL_OPT_OUT) && pin_dualfuel) {
         // Dual Fuel on, Switching, different outputs
-        if (( *port_dualfuel & pin_dualfuel) == pin_match_dualfuel) {
+        if (GPIO_ACTIVE(dualfuel)) {
             outpc.vecurr1 = 0; // if active, then kill VE1 (secondary outputs only)
             *lsum1 = 0;
         }
@@ -2999,7 +2999,7 @@ void main_fuel_calcs(long * lsum1, long * lsum2)
 
     if (ram4.loadopts & 0x8) {  /* factor in afr target */
         int tmp_stoich;
-        if (pin_tsw_stoich && (( *port_tsw_stoich & pin_tsw_stoich) == pin_match_tsw_stoich)) {  // Stoich switching
+        if (GPIO_ACTIVE(tsw_stoich)) {  // Stoich switching
             tmp_stoich = ram4.stoich_alt;
         }
         else {
@@ -3203,14 +3203,14 @@ void long_term_trim_out(long * lsum1, long * lsum2)
         else if (pin_ltt_but) {
             /* check for button */
             if (ltt_but_state == 0) { // nothing presently pressed
-                if (( *port_ltt_but & pin_ltt_but) == pin_match_ltt_but) { // is now pressed
-                    ltt_but_state++;
+                if (GPIO_ACTIVE(ltt_but)) { // is now pressed
+                    ltt_but_state = 1;
                     ltt_fl_state = 1;
                     ltt_but_debounce = (unsigned int)lmms;
                 }
             }
             else if ((ltt_but_state == 1) && (((unsigned int)lmms - ltt_but_debounce) > 8000)) {
-                if (( *port_ltt_but & pin_ltt_but) != pin_match_ltt_but) { // no longer pressed - need debounce timer
+                if (!GPIO_ACTIVE(ltt_but)) { // no longer pressed - need debounce timer
                     ltt_but_state = 0;
                 }
             }
@@ -3646,7 +3646,7 @@ void injpwms(void)
     }
 
     /* Calc injector PWM parameters */
-    if (pin_dualfuel && (ram5.dualfuel_sw2 & 0x04) && (( *port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) { // dual fuel switch
+    if (GPIO_ACTIVE(dualfuel) && (ram5.dualfuel_sw2 & 0x04)) { // dual fuel switch
         InjPWMDty1 = ram5.Inj2PWMDty1;
         InjPWMPd1 = ram5.Inj2PWMPd1;
         if (ram5.opentime2_opt[8] & 0x10) { // PWM enabled or not
@@ -4336,7 +4336,7 @@ void set_ase(void)
         && ((ram5.dualfuel_opt & DUALFUEL_OPT_MODE_MASK) == DUALFUEL_OPT_MODE_FLEXBLEND)) {
         w = 3;
     }
-    else if ((ram5.dualfuel_sw & 0x80) && pin_dualfuel && (( *port_dualfuel & pin_dualfuel) == pin_match_dualfuel)) {
+    else if ((ram5.dualfuel_sw & 0x80) && GPIO_ACTIVE(dualfuel)) {
         w = 2;
     }
     else {

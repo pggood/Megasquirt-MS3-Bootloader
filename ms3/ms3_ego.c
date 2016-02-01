@@ -31,6 +31,7 @@
  *
 */
 #include "ms3.h"
+#include "utils.h"
 
 void ego_init(void)
 {
@@ -256,7 +257,7 @@ void ego_get_targs_gl(void)
     if ( (ram5.dualfuel_sw & 0x08) && (ram5.dualfuel_sw & 0x1)
         && ((ram5.dualfuel_opt & DUALFUEL_OPT_MODE_MASK) == DUALFUEL_OPT_MODE_FLEXBLEND) ) {
         w = 7;
-    } else if (pin_tsw_afr && ((*port_tsw_afr & pin_tsw_afr) == pin_match_tsw_afr)) {      // AFR switching
+    } else if (GPIO_ACTIVE(tsw_afr)) {      // AFR switching
         w = 2;
     } else if ((ram4.tsw_pin_afr & 0x1f) == 14) {
         w = 3;

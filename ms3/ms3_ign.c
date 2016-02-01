@@ -52,6 +52,7 @@
 #include "ms3.h"
 #include "overrun.h"
 #include "config.h"
+#include "utils.h"
 
 void ign_reset(void)
 {
@@ -987,13 +988,13 @@ void calc_advance(long *lsum)
     uctmp = 0;                  //uctmp is local tmp var
     // nitrous control will also use this var as pin behaviour will be different ??
     if ((ram5.dualfuel_sw & 0x05) == 0x05) { // on + spark
-        if (pin_tss && ((*port_tss & pin_tss) == pin_match_tss)) {       // Hardware table switching
+        if (GPIO_ACTIVE(tss)) {       // Hardware table switching
             uctmp = 1;
         }
     } else {
         if (ram4.feature5_0 & TSW_S_ON) {       // table switching
             if ((ram4.feature5_0 & TSW_S_INPUTS) == 0) {
-                if (pin_tss && ((*port_tss & pin_tss) == pin_match_tss)) {       // Hardware table switching
+                if (GPIO_ACTIVE(tss)) {       // Hardware table switching
                     uctmp = 1;
                 }
             } else if ((ram4.feature5_0 & TSW_S_INPUTS) == TSW_S_RPM) {

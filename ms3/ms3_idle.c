@@ -69,7 +69,7 @@ void idle_ac_idleup(void)
         }
 
         /* Check AC idleup input pin */
-        if ((*port_ac_in & pin_ac_in) == pin_match_ac_in) {
+        if (GPIO_ACTIVE(ac_in)) {
 
             /* If AC on, check for TPS/VSS shutoff */
             if (flagbyte16 & FLAGBYTE16_AC_ENABLE) {

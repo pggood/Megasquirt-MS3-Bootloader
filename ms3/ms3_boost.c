@@ -25,6 +25,7 @@
  */
 
 #include "ms3.h"
+#include "utils.h"
 
 void boost_ctl_init(void)
 {
@@ -66,7 +67,7 @@ static void boost_ctl_cl(int channel, int lowerlimit, int Kp, int Ki, int Kd, un
     if ( (ram5.dualfuel_sw2 & 0x10) && (ram5.dualfuel_sw & 0x1)
         && ((ram5.dualfuel_opt & DUALFUEL_OPT_MODE_MASK) == DUALFUEL_OPT_MODE_FLEXBLEND) ) {
         maxboost = (int)((((long)ram4.OverBoostKpa * (100 - flexblend)) + ((long)ram4.OverBoostKpa2 * flexblend)) / 100);
-    } else if (pin_tsw_ob && ((*port_tsw_ob & pin_tsw_ob) == pin_match_tsw_ob)) {
+    } else if (GPIO_ACTIVE(tsw_ob)) {
         maxboost = ram4.OverBoostKpa2;
     } else {
         maxboost = ram4.OverBoostKpa;
@@ -127,7 +128,7 @@ static void boost_ctl_cl(int channel, int lowerlimit, int Kp, int Ki, int Kd, un
             if ( (ram5.dualfuel_sw2 & 0x20) && (ram5.dualfuel_sw & 0x1)
                 && ((ram5.dualfuel_opt & DUALFUEL_OPT_MODE_MASK) == DUALFUEL_OPT_MODE_FLEXBLEND) ) {
                 w = 7;
-            } else if ((pin_boost_tsw && ((*port_boost_tsw & pin_boost_tsw) == pin_match_boost_tsw)) ||
+            } else if (GPIO_ACTIVE(boost_tsw) ||
                 (((ram4.boost_feats & 0x1f) == 15) &&
                  (outpc.gear >= ram4.boost_gear_switch))) {
                 w = 2;
@@ -298,7 +299,7 @@ static void boost_ctl_ol(int channel, unsigned char coldduty)
             if ( (ram5.dualfuel_sw2 & 0x20) && (ram5.dualfuel_sw & 0x1)
                 && ((ram5.dualfuel_opt & DUALFUEL_OPT_MODE_MASK) == DUALFUEL_OPT_MODE_FLEXBLEND) ) {
                 w = 7;
-            } else if ((pin_boost_tsw && ((*port_boost_tsw & pin_boost_tsw) == pin_match_boost_tsw)) ||
+            } else if (GPIO_ACTIVE(boost_tsw) ||
                 (((ram4.boost_feats & 0x1f) == 15) &&
                  (outpc.gear >= ram4.boost_gear_switch))) {
                 w = 2;
