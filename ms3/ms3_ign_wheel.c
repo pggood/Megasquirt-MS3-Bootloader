@@ -60,7 +60,7 @@ void ign_wheel_init(void)
 
     Rpm_Coeff = 120000000 / num_cyl;
     if (ram4.EngStroke & 0x01) { /* 2 stroke or rotary */
-        Rpm_Coeff >>= 1; // halved for 2 stroke. OK for 3,4 cyl unsure about 1,2 cyl
+        Rpm_Coeff /= 2; // halved for 2 stroke. OK for 3,4 cyl unsure about 1,2 cyl
     }
 
     // initially set bits to zero. Means single edge on crank only 
@@ -76,7 +76,7 @@ void ign_wheel_init(void)
             flagbyte5 |= FLAGBYTE5_CAM;
             cycle_deg = 7200;
         } else {
-            no_triggers = num_cyl >> 1;
+            no_triggers = num_cyl / 2;
         }
 
         no_teeth = no_triggers;
@@ -636,7 +636,7 @@ void ign_wheel_init(void)
                     conf_err = 150;
                 }
                 if ((ram4.EngStroke & 0x01) == 0) { // 2 cyl 4-stroke
-                    divider = divider << 1; // otherwise double correct fuel
+                    divider *= 2; // otherwise double correct fuel
                 }
 
             } else if (!((num_cyl == 4) && ((ram4.spk_mode3 & 0xc0) == 0x40))) { // if 4 cyl but not w/s
@@ -655,7 +655,7 @@ void ign_wheel_init(void)
                 smallest_tooth_crk = cycle_deg - ram4.OddFireang;
             }
         } else {
-            smallest_tooth_crk = cycle_deg >> 1;
+            smallest_tooth_crk = cycle_deg / 2;
             deg_per_tooth[0] = smallest_tooth_crk;
             deg_per_tooth[1] = smallest_tooth_crk;
             trig_angs[0] = ram4.adv_offset - smallest_tooth_crk;
@@ -2324,7 +2324,7 @@ void ign_wheel_init(void)
                 cycle_deg = 7200;
                 flagbyte5 |= FLAGBYTE5_CRK_DOUBLE;
             } else {
-                no_triggers = num_cyl >> 1;     // even no. cylinders
+                no_triggers = num_cyl / 2;     // even no. cylinders
             }
 
             trig_ang = ram4.adv_offset;
@@ -2407,7 +2407,7 @@ void ign_wheel_init(void)
                 if (ram4.EngStroke & 0x01) {
                     no_triggers = num_cyl;     // For 2-stroke or rotary = no. cyl/rotors
                 } else {
-                    no_triggers = num_cyl >> 1; // for 4-stroke it is half
+                    no_triggers = num_cyl / 2; // for 4-stroke it is half
                 }
             }
             // we also need to calc the no. teeth we see - do this a little lower
@@ -2461,27 +2461,26 @@ void ign_wheel_init(void)
             } else {
             /* Now figure out how many degrees there are per tooth */
             /* only for even wheels, for uneven use special mode*/
+                unsigned int decidegrees_rotation;
 
         	    if (ram4.spk_config & 0x02) { // cam or crank speed
-            		tmp_deg_per_tooth = (unsigned int)(((unsigned int)7200 / (unsigned char)ram4.No_Teeth));
-                    if (7200 % ram4.No_Teeth) {
-                        conf_err = 1;
-                        return;
-                    }
-        	    } else {
-            		tmp_deg_per_tooth = (unsigned int)(((unsigned int)3600 / (unsigned char)ram4.No_Teeth));
-                    if (3600 % ram4.No_Teeth) {
-                        conf_err = 1;
-                        return;
-                    }
-        	    }
+                    decidegrees_rotation = 7200;
+                } else {
+                    decidegrees_rotation = 3600;
+                }
+                tmp_deg_per_tooth = (unsigned int)(decidegrees_rotation / (unsigned char)ram4.No_Teeth);
+                if (decidegrees_rotation % ram4.No_Teeth)
+                {
+                    conf_err = 1;
+                    return;
+                }
                 trig_ang = ram4.Miss_ang + tmp_offset;
             }
 
             if ((ram4.spk_config & 0xc) == 0x8) {       // dual wheel
                 if (ram4.spk_config & 0x02) {   // cam speed
                     if ((ram4.spk_config & 0xc0) == 0x40) {
-                        no_teeth = ram4.No_Teeth >> 1;  //  2nd trig every crank rev
+                        no_teeth = ram4.No_Teeth / 2;  //  2nd trig every crank rev
                     } else if ((ram4.spk_config & 0xc0) == 0x80) {
                         no_teeth = ram4.No_Teeth / num_cyl;  //  2nd trig every ignition event
                     } else {
@@ -2491,16 +2490,16 @@ void ign_wheel_init(void)
                     if ((ram4.spk_config & 0xc0) == 0x40) {
                         no_teeth = ram4.No_Teeth;       //  2nd trig every crank rev
                     } else if ((ram4.spk_config & 0xc0) == 0x80) {
-                        no_teeth = ram4.No_Teeth / (num_cyl >> 1);  //  2nd trig every ignition event
+                        no_teeth = ram4.No_Teeth / (num_cyl / 2);  //  2nd trig every ignition event
                     } else {
-                        no_teeth = ram4.No_Teeth << 1;  // 2nd trig every cam rev
+                        no_teeth = ram4.No_Teeth * 2;  // 2nd trig every cam rev
                     }
                 }
                 miss_teeth = 0;
             } else {
                 if ((ram4.spk_config & 0xc) == 0xc) {
                     /* missing + extra */
-                    no_teeth = ram4.No_Teeth << 1;
+                    no_teeth = ram4.No_Teeth * 2;
                 } else {
                     no_teeth = ram4.No_Teeth;
                 }
@@ -2603,13 +2602,13 @@ void ign_wheel_init(void)
                     odd_trig_ang[1] = 0;
                     teeth_per_trig[2] = base_teeth_per_trig;
                     odd_trig_ang[2] = odd_trig_offset;
-                    teeth_per_trig[3] = (base_teeth_per_trig << 1) - odd_trig_tooth_offset;
+                    teeth_per_trig[3] = (base_teeth_per_trig * 2) - odd_trig_tooth_offset;
                     odd_trig_ang[3] = odd_trig_offset;
 
                 } else if ((ram4.spk_conf2 & 0x18) == 0x00) { // alternating (more normal)
                     teeth_per_trig[0] = odd_trig_tooth_offset;
                     odd_trig_ang[0] = 0;
-                    teeth_per_trig[1] = (base_teeth_per_trig << 1) - odd_trig_tooth_offset;
+                    teeth_per_trig[1] = (base_teeth_per_trig * 2) - odd_trig_tooth_offset;
                     odd_trig_ang[1] = odd_trig_offset;
                     teeth_per_trig[2] = teeth_per_trig[0];
                     odd_trig_ang[2] = odd_trig_ang[0];
