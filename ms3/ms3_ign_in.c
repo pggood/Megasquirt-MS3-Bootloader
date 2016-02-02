@@ -5082,7 +5082,7 @@ void ISR_Ign_TimerIn_part2(void)
                                  "std  1,Y\n"
                                 :
                                 :"y"(log_offset + TRIGLOGBASE), "m"(*((unsigned char *) &dtpred + 1)),       // byte 3:**2**:1:0
-                                 "m"(*((unsigned int *) &dtpred + 1))   // bytes 3:2:**1**:**0**
+                                 "m"(*((unsigned int *)(void *)&dtpred + 1))   // bytes 3:2:**1**:**0**
                                 :"d"
                 );
 

@@ -2216,7 +2216,7 @@ Typical digout list
         unsigned char tmp_opt;
         /* freq based MAF */
         flagbyte8 |= FLAGBYTE8_USE_MAF;
-        mafport = (unsigned short*)&mafperiod_accum; /* makes window code read period sample */
+        mafport = (unsigned short *)(void *)&mafperiod_accum; /* makes window code read period sample */
         tmp_opt = (ram4.vss_can_size & 0xc0) >> 6;
         // options are PT4, PT2, PT5, PT6
         generic_timer_setup(131, tmp_opt, 1, 13);
@@ -2337,7 +2337,7 @@ Typical digout list
     if ((ram4.mapport & 0x60) == 0x20) {
         unsigned char tmp_opt;
         /* freq based MAP */
-        mapport = (unsigned short*)&mapperiod_accum; /* makes window code read period sample */
+        mapport = (unsigned short*)(void *)&mapperiod_accum; /* makes window code read period sample */
         tmp_opt = (ram4.knkport_an & 0xc0) >> 6;
         // options are PT4, PT2, PT5, PT6
         generic_timer_setup(130, tmp_opt, 1, 14);
@@ -4371,7 +4371,7 @@ void vss_init()
     tmp_opt = ram4.vss_opt0 & 0x03;
 
     if (tmp_opt == 0x02) {         // analogue
-        generic_adc_setup((volatile unsigned short**)&port_vss1, 58, ram4.vss1_an & 0x1f, 60);
+        generic_adc_setup((volatile unsigned short**)(void *)&port_vss1, 58, ram4.vss1_an & 0x1f, 60);
     } else if (tmp_opt == 0x01) {   // digital inputs
         unsigned int fdratio;
 
@@ -4418,7 +4418,7 @@ void vss_init()
     tmp_opt = ram4.vss_opt0 & 0x0c;
 
     if (tmp_opt == 0x08) {         // analogue
-        generic_adc_setup((volatile unsigned short**)&port_vss2, 59, ram4.vss2_an & 0x1f, 61);
+        generic_adc_setup((volatile unsigned short**)(void *)&port_vss2, 59, ram4.vss2_an & 0x1f, 61);
     } else if (tmp_opt == 0x04) {
         unsigned int fdratio;
 
@@ -4464,7 +4464,7 @@ void vss_init()
         pin_vss3 = 0;
         tmp_opt = ram4.vss_opt0 & 0x03;
         if (tmp_opt == 0x02) {         // analogue
-            generic_adc_setup((volatile unsigned short**)&port_vss3, 154, ram5.vss3_an & 0x1f, 118);
+            generic_adc_setup((volatile unsigned short**)(void *)&port_vss3, 154, ram5.vss3_an & 0x1f, 118);
         } else if (tmp_opt == 0x01) {   // digital inputs
             tmp_opt = ram5.vss_opt34 & 0x0f;
             /* share calcs with vss1 */
@@ -4483,7 +4483,7 @@ void vss_init()
         pin_vss4 = 0;
         tmp_opt = ram4.vss_opt0 & 0x0c;
         if (tmp_opt == 0x08) {         // analogue
-            generic_adc_setup((volatile unsigned short**)&port_vss4, 155, ram5.vss4_an & 0x1f, 119);
+            generic_adc_setup((volatile unsigned short**)(void *)&port_vss4, 155, ram5.vss4_an & 0x1f, 119);
         } else if (tmp_opt == 0x04) {   // digital inputs
             tmp_opt = (ram5.vss_opt34 & 0xf0) >> 4;
             /* share calcs with vss2 */

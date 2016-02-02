@@ -623,7 +623,7 @@ int twoptlookup(unsigned int x, unsigned int x0, unsigned int x1,
         /* interp is now a percentage of the x range */
 
         /* get that same percentage of the y range and add it to y0 */
-        interp = PERCENT_TO_OTHER_SCALE(interp, ((long)y1 - (long)y0));
+        interp = interp * ((long)y1 - (long)y0) / 100;
         result = (int)((long)y0 + interp);
     }
 
@@ -4607,8 +4607,8 @@ void antilag()
                 fc_pct = intrp_2dctable(outpc.rpm, outpc.tps, 6, 6, &ram_window.pg24.als_rpms[0],
                                         &ram_window.pg24.als_tpss[0], &ram_window.pg24.als_fuelcut[0][0], 0, 24);
                 // rough percentage makes setting easier to comprehend
-                fuel_cutx = PERCENT_TO_OTHER_SCALE(fc_pct, num_cyl + 1);
                 fuel_cuty = num_cyl + 1;
+                fuel_cutx = PERCENT_TO_OTHER_SCALE(fc_pct, fuel_cuty);
                 flagbyte10 |= FLAGBYTE10_FUELCUTTMP;
             }
         }
@@ -4635,8 +4635,8 @@ ALS_CHKSTAT:;
             fc_pct = intrp_2dctable(outpc.rpm, outpc.tps, 6, 6, &ram_window.pg24.als_rirpms[0],
                                     &ram_window.pg24.als_ritpss[0], &ram_window.pg24.als_rifuelcut[0][0], 0, 24);
             // rough percentage makes setting easier to comprehend
-            fuel_cutx = PERCENT_TO_OTHER_SCALE(fc_pct, num_cyl + 1);
             fuel_cuty = num_cyl + 1;
+            fuel_cutx = PERCENT_TO_OTHER_SCALE(fc_pct, fuel_cuty);
             flagbyte10 |= FLAGBYTE10_FUELCUTTMP;
         }
         outpc.als_timing = 0;
