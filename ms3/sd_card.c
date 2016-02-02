@@ -356,11 +356,11 @@ void do_sdcard(void)
 
     if (sd_ledstat & 0x80) {
         SSEM0SEI;
-        *port_sdled |= pin_sdled;
+        GPIO_ON(sdled);
         CSEM0CLI;
     } else {
         SSEM0SEI;
-        *port_sdled &= ~pin_sdled;
+        GPIO_OFF(sdled);
         CSEM0CLI;
     }
 
@@ -368,7 +368,7 @@ void do_sdcard(void)
     if (pin_sdpulse) {
         if ((flagbyte15 & FLAGBYTE15_SDLOGRUN) && ((flagbyte23 & FLAGBYTE23_SDPULSE_ACT) == 0)) {
             SSEM0SEI;
-            *port_sdpulse |= pin_sdpulse; /* Enable */
+            GPIO_ON(sdpulse); /* Enable */
             CSEM0CLI;
             flagbyte23 |= FLAGBYTE23_SDPULSE_ACT;
             flagbyte23 &= ~FLAGBYTE23_SDPULSE_DONE;
@@ -376,7 +376,7 @@ void do_sdcard(void)
         } else if ((flagbyte23 & FLAGBYTE23_SDPULSE_ACT) && ((flagbyte23 & FLAGBYTE23_SDPULSE_DONE) == 0)) {
             if (((unsigned int)lmms - sd_pulse_time) > 790) { /* Hardcoded 100ms */
                 SSEM0SEI;
-                *port_sdpulse &= ~pin_sdpulse; /* Disable */
+                GPIO_OFF(sdpulse); /* Disable */
                 CSEM0CLI;
                 flagbyte23 |= FLAGBYTE23_SDPULSE_DONE;
             }

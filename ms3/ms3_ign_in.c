@@ -23,6 +23,7 @@
  *
 */
 #include "ms3.h"
+#include "utils.h"
 
 void ISR_Ign_TimerIn(void)
 {
@@ -5601,7 +5602,7 @@ ALS_FUEL_CUT:;
             tacho_targ = lowres_ctr >> 1;
         }
         SSEM0;
-        *port_tacho |= pin_tacho;
+        GPIO_ON(tacho);
         CSEM0;
     } else if ((ram4.tacho_opt2 & 0xc0) == 0x00) { /* Off */
         /* still want tacho_targ set for inj LED */

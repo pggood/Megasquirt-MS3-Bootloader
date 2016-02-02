@@ -1320,7 +1320,7 @@ void main_init(void)
     port_fp = &PORTE;
     pin_fp = 0x10;
     DDRE = 0x10;                // PE4 output, others inputs
-    *port_fp &= ~pin_fp; // locked on std pin
+    GPIO_OFF(fp); // locked on std pin
 
     // initalize PLL - reset default is Oscillator clock
     // 4 MHz oscillator, PLL freq = 100 MHz, 50 MHz bus,
@@ -2449,7 +2449,7 @@ Typical digout list
         }
 
         /* Make sure the output pin is off, wouldn't want AC on while cranking */
-        *port_ac_out &= ~pin_ac_out;
+        GPIO_OFF(ac_out);
     }
 
     if (ram4.fanctl_settings & 0x80) {
@@ -2537,7 +2537,7 @@ Typical digout list
         } else { // on/off
             generic_digout_setup(&port_n2o1n, &pin_n2o1n, 39, ram4.n2o1n_pins & 0x3f, 22);
                 
-            *port_n2o1n &= ~pin_n2o1n;      // turn it off
+            GPIO_OFF(n2o1n);      // turn it off
 
             // Now the stage 1 fuel pin
             tmp_opt = ram4.n2o1f_pins & 0x3f;
@@ -2551,7 +2551,7 @@ Typical digout list
 
                 generic_digout_setup(&port_n2o1f, &pin_n2o1f, 39, tmp_opt, 23);
             }
-            *port_n2o1f &= ~pin_n2o1f;      // turn it off
+            GPIO_OFF(n2o1f);      // turn it off
 
             // Stage 2 nitrous pin
             if (ram4.N2Oopt & 0x08) {
@@ -2559,7 +2559,7 @@ Typical digout list
 
                 generic_digout_setup(&port_n2o2n, &pin_n2o2n, 40, tmp_opt, 24);
 
-                *port_n2o2n &= ~pin_n2o2n;  // turn it off
+                GPIO_OFF(n2o2n);  // turn it off
 
                 // Now the stage 2 fuel pin
                 tmp_opt = ram4.n2o2f_pins & 0x3f;
@@ -2570,7 +2570,7 @@ Typical digout list
                 } else {
                     generic_digout_setup(&port_n2o2f, &pin_n2o2f, 40, tmp_opt, 25);
                 }
-                *port_n2o2f &= ~pin_n2o2f;  // turn it off
+                GPIO_OFF(n2o2f);  // turn it off
             }
         }
 //     Nitrous inputs
@@ -2754,7 +2754,7 @@ Typical digout list
         pin_wipump = 0;
         if (ram4.water_pins_pump & 0x3f) {
             generic_digout_setup(&port_wipump, &pin_wipump, 65, ram4.water_pins_pump & 0x3f, 54);
-            *port_wipump &= ~pin_wipump;        // turn it off
+            GPIO_OFF(wipump);        // turn it off
         }
         // Water injection - valve
         port_wivalve = (volatile unsigned char *) &dummyReg;
@@ -2763,7 +2763,7 @@ Typical digout list
         if (tmp_opt && (ram4.water_freq & 0x60)) {
             if (ram4.water_freq & 0x20) { // fast
                 generic_digout_setup(&port_wivalve, &pin_wivalve, 66, tmp_opt, 55);
-                *port_wivalve &= ~pin_wivalve;      // turn it off
+                GPIO_OFF(wivalve);      // turn it off
             } else { // slow
                 (void)generic_swpwm_setup(&outpc.water_duty, 66, tmp_opt, 0, (ram4.water_freq >> 1) & 0xf, 55, 0);
             }
@@ -2905,7 +2905,7 @@ Typical digout list
         if (tmp_opt != 0) {
             generic_digout_setup(&port_maxafr, &pin_maxafr, 57, tmp_opt, 49);
         }
-        *port_maxafr &= ~pin_maxafr;    // turn it off
+        GPIO_OFF(maxafr);    // turn it off
     }
     // check for valid cylinder counts
     {
@@ -2958,9 +2958,9 @@ Typical digout list
         if (tmp_opt) { // switched output 1
             generic_digout_setup(&port_staged_out1, &pin_staged_out1, 157, tmp_opt, 120);
             if (ram5.staged_out1 & 0x80) { //inv
-                *port_staged_out1 |= pin_staged_out1;
+                GPIO_ON(staged_out1);
             } else {
-                *port_staged_out1 &= ~pin_staged_out1;
+                GPIO_OFF(staged_out1);
             }
             // reject table based or fully transition
             if (((ram4.staged & 0x7) == 5) || (ram4.staged_extended_opts & STAGED_EXTENDED_STAGEPW1OFF)) {
@@ -2972,9 +2972,9 @@ Typical digout list
         if (tmp_opt) { // switched output 2
             generic_digout_setup(&port_staged_out2, &pin_staged_out2, 164, tmp_opt, 125);
             if (ram5.staged_out2 & 0x80) { //inv
-                *port_staged_out2 |= pin_staged_out2;
+                GPIO_ON(staged_out2);
             } else {
-                *port_staged_out2 &= ~pin_staged_out2;
+                GPIO_OFF(staged_out2);
             }
         }
 
@@ -3909,7 +3909,7 @@ Typical digout list
             tmp_opt = ram5.ltt_but_in & 0x1f;
             if (tmp_opt) {
                 generic_digin_setup(&port_ltt_but, &pin_ltt_but, &pin_match_ltt_but, 139, tmp_opt, 112); 
-                if (!(*port_ltt_but & pin_ltt_but)) {
+                if (!(*port_ltt_but & pin_ltt_but)) {   /* should match against pin_match_ltt_but? */
                     ltt_but_state = 1; // ensure we detect an off->on rather than stuck-on
                 }
             }
@@ -3918,7 +3918,7 @@ Typical digout list
         tmp_opt = ram5.ltt_led_out & 0x3f;
         if (tmp_opt) {
             generic_digout_setup(&port_ltt_led, &pin_ltt_led, 140, tmp_opt, 112); 
-            *port_ltt_led &= ~pin_ltt_led;
+            GPIO_OFF(ltt_led);
         }
     }
 
@@ -3930,7 +3930,7 @@ Typical digout list
         tmp_opt = ram5.cel_port & 0x3f;
         if (tmp_opt) {
             generic_digout_setup(&port_cel, &pin_cel, 151, tmp_opt, 117);
-            *port_cel |= pin_cel; // set it on now as lamp test. Code will turn it off shortly.
+            GPIO_ON(cel); // set it on now as lamp test. Code will turn it off shortly.
         }
     }
 
@@ -3968,7 +3968,7 @@ Typical digout list
         tmp_opt = ram5.alternator_lampout & 0x3f;
         if (tmp_opt) {
             generic_digout_setup(&port_alt_lamp, &pin_alt_lamp, 163, tmp_opt, 124);
-            *port_alt_lamp |= pin_alt_lamp; // turn on
+            GPIO_ON(alt_lamp); // turn on
         }
 
         /* field load sense input */
@@ -3996,7 +3996,7 @@ Typical digout list
         tmp_opt = ram5.shiftlight_opt & 0x3f;
         if (tmp_opt) {
             generic_digout_setup(&port_shift, &pin_shift, 165, tmp_opt, 126);
-            *port_shift &= ~pin_shift; // turn off
+            GPIO_OFF(shift); // turn off
         }
     }
 
@@ -4005,7 +4005,7 @@ Typical digout list
         tmp_opt = ram5.oilpress_out & 0x3f;
         if (tmp_opt) {
             generic_digout_setup(&port_oilpress_out, &pin_oilpress_out, 166, tmp_opt, 127);
-            *port_oilpress_out &= ~pin_oilpress_out; // turn off
+            GPIO_OFF(oilpress_out); // turn off
         }
     }
 
@@ -4019,7 +4019,7 @@ Typical digout list
             tmp_opt = ram5.llstg_out & 0x3f;
             if (tmp_opt) {
                 generic_digout_setup(&port_llstg_out, &pin_llstg_out, 181, tmp_opt, 133);
-                *port_llstg_out &= ~pin_llstg_out; // turn off
+                GPIO_OFF(llstg_out); // turn off
             }
         }
     }
@@ -4572,7 +4572,7 @@ void vss_init()
     pin_vssout = 0;
     if (ram4.vssout_opt & 0x3f) {
         generic_digout_setup(&port_vssout, &pin_vssout, 78, ram4.vssout_opt & 0x3f, 53);
-        *port_vssout &= ~pin_vssout;        // turn it off
+        GPIO_OFF(vssout);        // turn it off
     }
 
     if ((ram4.gear_method & 0x03) == 1) {         // rpm/vss

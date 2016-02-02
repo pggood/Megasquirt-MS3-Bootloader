@@ -2248,7 +2248,7 @@ void knock_spi(void)
 
     } else if (knock_state == 3) {
         SSEM0;
-        *port_knock_out &= ~pin_knock_out; // Set INT/HOLD to 0 to allow comms
+        GPIO_OFF(knock_out); // Set INT/HOLD to 0 to allow comms
         CSEM0;
         (void)SPI0SR;
         (void)SPI0DRL;

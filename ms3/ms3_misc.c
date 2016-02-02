@@ -885,7 +885,7 @@ void ltt_burn()
                 ltt_fl_state = 0;
                 if (pin_ltt_led) {
                     SSEM0SEI;
-                    *port_ltt_led &= ~pin_ltt_led; // turn off LED
+                    GPIO_OFF(ltt_led); // turn off LED
                     CSEM0CLI;
                 }
             }
@@ -1044,7 +1044,7 @@ void speed_sensors()
         if (flagbyte8 & FLAGBYTE8_SAMPLE_VSS1) {
             flagbyte8 &= ~FLAGBYTE8_SAMPLE_VSS1;
             tmp_speed =
-                (unsigned int)( *(unsigned int *)&( *port_vss1) *
+                (unsigned int)( *(unsigned int *)&(*port_vss1) *
                                (unsigned long)ram4.vss1_an_max /
                                (unsigned long)1023);
             dl = 1;
@@ -1137,7 +1137,7 @@ void speed_sensors()
         if (flagbyte8 & FLAGBYTE8_SAMPLE_VSS2) {
             flagbyte8 &= ~FLAGBYTE8_SAMPLE_VSS2;
             tmp_speed =
-                (unsigned int)( *(unsigned int *)&( *port_vss2) *
+                (unsigned int)( *(unsigned int *)&(*port_vss2) *
                                (unsigned long)ram4.vss2_an_max /
                                (unsigned long)1023);
             dl = 1;
@@ -1230,7 +1230,7 @@ void speed_sensors()
             if (flagbyte19 & FLAGBYTE19_SAMPLE_VSS3) {
                 flagbyte19 &= ~FLAGBYTE19_SAMPLE_VSS3;
                 tmp_speed =
-                    (unsigned int)( *(unsigned int *)&( *port_vss3) *
+                    (unsigned int)( *(unsigned int *)&(*port_vss3) *
                                    (unsigned long)ram4.vss1_an_max /
                                    (unsigned long)1023);
                 dl = 1;
@@ -1325,7 +1325,7 @@ void speed_sensors()
             if (flagbyte19 & FLAGBYTE19_SAMPLE_VSS4) {
                 flagbyte19 &= ~FLAGBYTE19_SAMPLE_VSS4;
                 tmp_speed =
-                    (unsigned int)( *(unsigned int *)&( *port_vss4) *
+                    (unsigned int)( *(unsigned int *)&(*port_vss4) *
                                    (unsigned long)ram4.vss2_an_max /
                                    (unsigned long)1023);
                 dl = 1;
@@ -1696,14 +1696,14 @@ void nitrous()
                                         // stage 1
             if (outpc.status2 & STATUS2_NITROUS1) {
                 SSEM0SEI;
-                *port_n2o1n |= pin_n2o1n;
-                *port_n2o1f |= pin_n2o1f;
+                GPIO_ON(n2o1n);
+                GPIO_ON(n2o1f);
                 CSEM0CLI;
             }
             else {
                 SSEM0SEI;
-                *port_n2o1n &= ~pin_n2o1n;
-                *port_n2o1f &= ~pin_n2o1f;
+                GPIO_OFF(n2o1n);
+                GPIO_OFF(n2o1f);
                 CSEM0CLI;
             }
 
@@ -1711,14 +1711,14 @@ void nitrous()
                 // stage 2
                 if (outpc.status2 & STATUS2_NITROUS2) {
                     SSEM0SEI;
-                    *port_n2o2n |= pin_n2o2n;
-                    *port_n2o2f |= pin_n2o2f;
+                    GPIO_ON(n2o2n);
+                    GPIO_ON(n2o2f);
                     CSEM0CLI;
                 }
                 else {
                     SSEM0SEI;
-                    *port_n2o2n &= ~pin_n2o2n;
-                    *port_n2o2f &= ~pin_n2o2f;
+                    GPIO_OFF(n2o2n);
+                    GPIO_OFF(n2o2f);
                     CSEM0CLI;
                 }
             }
@@ -2489,7 +2489,7 @@ void water_inj()
 
             if (pin_wipump) {  // using pump output
                 SSEM0SEI;
-                *port_wipump |= pin_wipump;
+                GPIO_ON(wipump);
                 CSEM0CLI;
             }
 
@@ -2537,7 +2537,7 @@ void water_inj()
         else {                // system inactive
             if (pin_wipump) {  // using pump output
                 SSEM0SEI;
-                *port_wipump &= ~pin_wipump;
+                GPIO_OFF(wipump);
                 CSEM0CLI;
             }
 
@@ -2547,7 +2547,7 @@ void water_inj()
 
             if ((ram4.water_freq & 0x60) && pin_wivalve) {    // using valve output
                 SSEM0SEI;
-                *port_wivalve &= ~pin_wivalve;
+                GPIO_OFF(wivalve);
                 CSEM0CLI;
             }
         }
@@ -2647,7 +2647,7 @@ void do_launch()
             /* Line lock staging */
             if (flagbyte23 & FLAGBYTE23_LLSTG) {
                 SSEM0SEI;
-                *port_llstg_out &= ~pin_llstg_out;
+                GPIO_OFF(llstg_out);
                 CSEM0CLI;
                 flagbyte23 &= ~FLAGBYTE23_LLSTG;
             }
@@ -2724,10 +2724,10 @@ NO_LAUNCH:;
             st = 1;
         }
         if (st) {
-            *port_tstop |= pin_tstop;
+            GPIO_ON(tstop);
         }
         else {
-            *port_tstop &= ~pin_tstop;
+            GPIO_OFF(tstop);
         }
     }
 
@@ -2850,7 +2850,7 @@ void transbrake(void)
             /* not pressed at the moment */
             if (GPIO_ACTIVE(timed1_in)) {
                 tb_state = 1;
-                *port_timed1_out |= pin_timed1_out;
+                GPIO_ON(timed1_out);
                 tcs_move = 1;
             }
 
@@ -2866,7 +2866,7 @@ void transbrake(void)
                 }
                 else {
                     /* release brake immediately */
-                    *port_timed1_out &= ~pin_timed1_out;
+                    GPIO_OFF(timed1_out);
                     tb_state = 0;
                 }
             }
@@ -2876,7 +2876,7 @@ void transbrake(void)
                     /* TB button held down, check for interrupt button */
                     if (GPIO_ACTIVE(tcs) && (tb_timer == 0)) {
                         tb_timer = ram5.tcs_offtime;
-                        *port_timed1_out &= ~pin_timed1_out;
+                        GPIO_OFF(timed1_out);
                         tb_state = 2;
                     }
                 }
@@ -2884,7 +2884,7 @@ void transbrake(void)
                     /* countdown during move */
                     if (tb_timer == 0) {
                         tb_timer = ram5.tcs_ontime;
-                        *port_timed1_out |= pin_timed1_out;
+                        GPIO_ON(timed1_out);
                         tb_state = 3;
                     }
                 }
@@ -2897,7 +2897,7 @@ void transbrake(void)
                         else {
                             tcs_move++;
                             tb_timer = ram5.tcs_offtime;
-                            *port_timed1_out &= ~pin_timed1_out;
+                            GPIO_OFF(timed1_out);
                             tb_state = 2;
                         }
                     }
@@ -2915,7 +2915,7 @@ void transbrake(void)
         else if (tb_state == 10) {
             /* countdown to off */
             if (tb_timer == 0) {
-                *port_timed1_out &= ~pin_timed1_out;
+                GPIO_OFF(timed1_out);
                 tb_state = 0;
             }
         }
@@ -3318,7 +3318,7 @@ void do_egt(void)
         int egt;
         //convert to temp units
         if (ram4.egtport[ix] & 0x1f) {
-            egt = ram4.egt_temp0 + (((long) *port_egt[ix] * (long)(ram4.egt_tempmax - ram4.egt_temp0)) / 1023);
+            egt = ram4.egt_temp0 + (((long)*port_egt[ix] * (long)(ram4.egt_tempmax - ram4.egt_temp0)) / 1023);
         }
         else {
             egt = 0;
@@ -3986,7 +3986,7 @@ void shifter()
                  || ((ram5.shift_cut & SHIFT_CUT_AUTO) && (outpc.gear) && (outpc.gear < 6) && (outpc.rpm > ram5.shift_cut_rpmauto[outpc.gear - 1])))) { // OR auto
                 shift_cut_phase = 1;
                 SSEM0SEI;
-                *port_shift_cut_out |= pin_shift_cut_out; // enable solenoid
+                GPIO_ON(shift_cut_out); // enable solenoid
                 CSEM0CLI;
                 shift_cut_timer = ram5.shift_cut_delay;
             }
@@ -4013,7 +4013,7 @@ void shifter()
         }
         else if ((shift_cut_phase == 3) && (shift_cut_timer == 0)) {
             SSEM0SEI;
-            *port_shift_cut_out &= ~pin_shift_cut_out; // disable solenoid
+            GPIO_OFF(shift_cut_out); // disable solenoid
             CSEM0CLI;
             shift_cut_timer = ram5.shift_cut_reshift;
             shift_cut_phase = 4;
@@ -4539,7 +4539,7 @@ void antilag()
             flagbyte23 |= FLAGBYTE23_ALS_OUT;
             if (pin_alsout) {
                 SSEM0SEI;
-                *port_alsout |= pin_alsout;
+                GPIO_ON(alsout);
                 CSEM0CLI;
             }
             als_iacstep = IACmotor_pos; // save it
@@ -4560,7 +4560,7 @@ void antilag()
             als_iacstep = 32000;
             if (pin_alsout) {
                 SSEM0SEI;
-                *port_alsout &= ~pin_alsout;
+                GPIO_OFF(alsout);
                 CSEM0CLI;
             }
             if (ram_window.pg24.als_opt & 0x10) {
@@ -5038,7 +5038,7 @@ void tclu()
             }
             else {
                 SSEM0SEI;
-                *port_tcluout &= ~pin_tcluout; // ensure output is off
+                GPIO_OFF(tcluout); // ensure output is off
                 CSEM0CLI;
             }
         }
@@ -5049,17 +5049,17 @@ void tclu()
             else if (tclu_timer == 0) {
                 tclu_state = 2; // turn it on
                 SSEM0SEI;
-                *port_tcluout |= pin_tcluout;
+                GPIO_ON(tcluout);
                 CSEM0CLI;
             }
         }
         else if (tclu_state == 2) { // locked
             v = 1;
             /* recheck conditions with some hyst */
-            if (pin_tclubr && (( *port_tclubr & pin_tclubr) == 0)) { // brake switch cancels immediately
+            if (pin_tclubr && ((*port_tclubr & pin_tclubr) == 0)) { // brake switch cancels immediately
                 v = 0;
             }
-            if ( *port_tcluen & pin_tcluen) { // lack of enable input
+            if (*port_tcluen & pin_tcluen) { // lack of enable input
                 v = 0;
             }
             if (((ram_window.pg24.tclu_opt & 0x01) && (outpc.vss1 < (ram_window.pg24.tclu_vssmin - 10)))
@@ -5081,7 +5081,7 @@ void tclu()
             if (v == 0) {
                 tclu_state = 0;
                 SSEM0SEI;
-                *port_tcluout &= ~pin_tcluout; // ensure output is off
+                GPIO_OFF(tcluout); // ensure output is off
                 CSEM0CLI;
             }
         }
@@ -5111,7 +5111,7 @@ void traction()
         outpc.tc_slipxtime = 0;
         if (pin_tcled) {
             SSEM0;
-            *port_tcled &= ~pin_tcled;
+            GPIO_OFF(tcled);
             CSEM0;
         }
         return;
@@ -5145,7 +5145,7 @@ void traction()
             long lt;
             unsigned char slipth;
             if (ram5.tc_opt & 0x10) {
-                slipth = intrp_1dctable( *port_tc_knob, 9,
+                slipth = intrp_1dctable(*port_tc_knob, 9,
                                         (int *)ram_window.pg27.tcslipx, 0,
                                         (unsigned char *)ram_window.pg27.tcslipy, 27);
             }
@@ -5219,14 +5219,14 @@ void traction()
         outpc.tc_retard = 0;
         if (pin_tcled) {
             SSEM0;
-            *port_tcled &= ~pin_tcled;
+            GPIO_OFF(tcled);
             CSEM0;
         }
     }
     else {
         if (pin_tcled) {
             SSEM0;
-            *port_tcled |= pin_tcled;
+            GPIO_ON(tcled);
             CSEM0;
         }
         // Now figure out what actions to take
@@ -5824,12 +5824,12 @@ void check_sensors(void)
 
             if (light) {
                 SSEM0SEI;
-                *port_cel |= pin_cel;
+                GPIO_ON(cel);
                 CSEM0CLI;
             }
             else {
                 SSEM0SEI;
-                *port_cel &= ~pin_cel;
+                GPIO_OFF(cel);
                 CSEM0CLI;
             }
         }
@@ -5991,13 +5991,13 @@ unsigned int do_testmode()
         }
         else if (datax1.testmodemode == 5) { // FP on
             SSEM0;
-            *port_fp |= pin_fp;
+            GPIO_ON(fp);
             CSEM0;
             outpc.engine |= ENGINE_READY;
         }
         else if (datax1.testmodemode == 6) { // FP off
             SSEM0;
-            *port_fp &= ~pin_fp;
+            GPIO_OFF(fp);
             CSEM0;
             outpc.engine &= ~ENGINE_READY;
         }
@@ -6142,13 +6142,13 @@ unsigned int do_testmode()
 
             }
             else if (ioport == 0x60) { // IAC1
-                *port_iacen |= pin_iacen;
+                GPIO_ON(iacen);
                 DDRJ |= 0x02;
                 port_testio = (unsigned char *)&PTJ;
                 pin_testio = 0x02;
             }
             else if (ioport == 0x64) { // IAC2
-                *port_iacen |= pin_iacen;
+                GPIO_ON(iacen);
                 DDRJ |= 0x01;
                 port_testio = (unsigned char *)&PTJ;
                 pin_testio = 0x01;
@@ -6262,13 +6262,13 @@ unsigned int do_testmode()
 
             testmode_glob = 0;
             if (ioport_mode == 0) {
-                *port_testio &= ~pin_testio;
+                GPIO_OFF(testio);
             }
             else if (ioport_mode == 2) {
                 testmode_glob = 3;
             }
             else if (ioport_mode == 3) {
-                *port_testio |= pin_testio;
+                GPIO_ON(testio);
             }
 
         }
@@ -6440,7 +6440,7 @@ void fuelpump_run(void)
         if (outpc.fp_duty == 0) {
             outpc.fp_duty = 255;
             SSEM0;
-            *port_fp |= pin_fp;
+            GPIO_ON(fp);
             CSEM0;
         }
     }
@@ -6454,7 +6454,7 @@ void fuelpump_prime(void)
     else { // on/off
         outpc.fp_duty = 255;
         SSEM0;
-        *port_fp |= pin_fp;
+        GPIO_ON(fp);
         CSEM0;
     }
     /* actual duty applied to output in RTC */
@@ -6464,7 +6464,7 @@ void fuelpump_off(void)
 {
     if ((ram5.fp_opt & 0x03) == 0) { // on/off
         SSEM0;
-        *port_fp &= ~pin_fp;
+        GPIO_OFF(fp);
         CSEM0;
         outpc.fp_duty = 0;
     }
@@ -6875,24 +6875,24 @@ void alternator(void)
         if (outpc.alt_targv) {
             if ((ram5.alternator_controlout & 0x40) == 0) {
                 SSEM0SEI;
-                *port_alt_out |= pin_alt_out;
+                GPIO_ON(alt_out);
                 CSEM0CLI;
             }
             else {
                 SSEM0SEI;
-                *port_alt_out &= ~pin_alt_out;
+                GPIO_OFF(alt_out);
                 CSEM0CLI;
             }
         }
         else { // off
             if (ram5.alternator_controlout & 0x40) {
                 SSEM0SEI;
-                *port_alt_out |= pin_alt_out;
+                GPIO_ON(alt_out);
                 CSEM0CLI;
             }
             else {
                 SSEM0SEI;
-                *port_alt_out &= ~pin_alt_out;
+                GPIO_OFF(alt_out);
                 CSEM0CLI;
             }
         }
@@ -6984,12 +6984,12 @@ void alternator(void)
             || ((mode == 4) && (outpc.alt_duty > ram5.alternator_maxload)) // commanded duty too high
             || (mode && pin_alt_mon && (outpc.load_duty > ram5.alternator_maxload))) { // monitored field duty too high
             SSEM0SEI;
-            *port_alt_lamp |= pin_alt_lamp;
+            GPIO_ON(alt_lamp);
             CSEM0CLI;
         }
         else {
             SSEM0SEI;
-            *port_alt_lamp &= ~pin_alt_lamp;
+            GPIO_OFF(alt_lamp);
             CSEM0CLI;
         }
     }
@@ -7020,7 +7020,7 @@ void shiftlight(void)
             if (outpc.rpm < (lim - 100)) {
                 flagbyte19 &= ~FLAGBYTE19_SHIFT;
                 SSEM0SEI;
-                *port_shift &= ~pin_shift;
+                GPIO_OFF(shift);
                 CSEM0CLI;
             }
         }
@@ -7028,7 +7028,7 @@ void shiftlight(void)
             if (outpc.rpm > lim) {
                 flagbyte19 |= FLAGBYTE19_SHIFT;
                 SSEM0SEI;
-                *port_shift |= pin_shift;
+                GPIO_ON(shift);
                 CSEM0CLI;
             }
         }
@@ -7057,7 +7057,7 @@ void oilpress(void)
         if ((p < p1) || (p > p2)) { /* Pressure out of range */
             if (pin_oilpress_out) {
                 SSEM0SEI;
-                *port_oilpress_out |= pin_oilpress_out; // light this always
+                GPIO_ON(oilpress_out); // light this always
                 CSEM0CLI;
             }
             if (!((outpc.rpm < 3) || (flagbyte2 & flagbyte2_crank_ok))) {
@@ -7067,7 +7067,7 @@ void oilpress(void)
         else { /* ok */
             if (pin_oilpress_out) {
                 SSEM0SEI;
-                *port_oilpress_out &= ~pin_oilpress_out;
+                GPIO_OFF(oilpress_out);
                 CSEM0CLI;
             }
         }
@@ -7124,7 +7124,7 @@ void linelock_staging(void)
                 llstg_state = 1;
                 llstg_time = (unsigned int)lmms;
                 SSEM0SEI;
-                *port_llstg_out |= pin_llstg_out;
+                GPIO_ON(llstg_out);
                 CSEM0CLI;
                 flagbyte23 |= FLAGBYTE23_LLSTG;
             }
@@ -7145,7 +7145,7 @@ void linelock_staging(void)
                 llstg_state = 3;
                 llstg_time = (unsigned char)lmms;
                 SSEM0SEI;
-                *port_llstg_out &= ~pin_llstg_out;
+                GPIO_OFF(llstg_out);
                 CSEM0CLI;
                 flagbyte23 &= ~FLAGBYTE23_LLSTG;
             }

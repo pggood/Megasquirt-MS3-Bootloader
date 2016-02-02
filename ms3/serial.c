@@ -15,6 +15,7 @@
 
 #include "ms3.h"
 #include "config.h"
+#include "utils.h"
 
 #define GWR(a) g_write_generic(a, &x, sizeof(a));
 
@@ -1532,7 +1533,7 @@ SERIAL_OK:;
         && (g_read8(0xf00e) == 's')
         && (g_read8(0xf00f) == 't')) {
         /* jumperless reboot, shut down and enter monitor through COP timeout */
-        *port_iacen |= pin_iacen; // turn off stepper power
+        GPIO_ON(iacen); // turn off stepper power
         DISABLE_INTERRUPTS;
         // turn off fuel pump. User is instructed to have coils wired via the relay
         fuelpump_off();

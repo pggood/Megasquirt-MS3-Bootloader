@@ -411,12 +411,12 @@ void calc_staged_pw(unsigned long base_pw)
                 else {
                     if (ram5.staged_out2 & 0x80) { //inv
                         SSEM0SEI;
-                        *port_staged_out2 &= ~pin_staged_out2;
+                        GPIO_OFF(staged_out2);
                         CSEM0CLI;
                     }
                     else {
                         SSEM0SEI;
-                        *port_staged_out2 |= pin_staged_out2;
+                        GPIO_ON(staged_out2);
                         CSEM0CLI;
                     }
                     goto STAGED_FLAPPING;
@@ -427,12 +427,12 @@ void calc_staged_pw(unsigned long base_pw)
         if (pin_staged_out1) { // turn on if enabled
             if (ram5.staged_out1 & 0x80) { //inv
                 SSEM0SEI;
-                *port_staged_out1 &= ~pin_staged_out1;
+                GPIO_OFF(staged_out1);
                 CSEM0CLI;
             }
             else {
                 SSEM0SEI;
-                *port_staged_out1 |= pin_staged_out1;
+                GPIO_ON(staged_out1);
                 CSEM0CLI;
             }
         }
@@ -526,23 +526,23 @@ void calc_staged_pw(unsigned long base_pw)
         if (pin_staged_out1) { // turn off if enabled
             if (ram5.staged_out1 & 0x80) { //inv
                 SSEM0SEI;
-                *port_staged_out1 |= pin_staged_out1;
+                GPIO_ON(staged_out1);
                 CSEM0CLI;
             }
             else {
                 SSEM0SEI;
-                *port_staged_out1 &= ~pin_staged_out1;
+                GPIO_OFF(staged_out1);
                 CSEM0CLI;
             }
         }
         if (ram5.staged_out2 & 0x80) { //inv
             SSEM0SEI;
-            *port_staged_out2 |= pin_staged_out2;
+            GPIO_ON(staged_out2);
             CSEM0CLI;
         }
         else {
             SSEM0SEI;
-            *port_staged_out2 &= ~pin_staged_out2;
+            GPIO_OFF(staged_out2);
             CSEM0CLI;
         }
         staged_flaptimer = (unsigned int)lmms;
@@ -3130,7 +3130,7 @@ void long_term_trim_out(long * lsum1, long * lsum2)
         if (delta > ram5.ltt_thresh) {
             if (pin_ltt_led) {
                 SSEM0SEI;
-                *port_ltt_led |= pin_ltt_led;
+                GPIO_ON(ltt_led);
                 CSEM0CLI;
             }
         }

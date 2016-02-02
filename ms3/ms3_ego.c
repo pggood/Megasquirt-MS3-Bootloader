@@ -465,11 +465,11 @@ void do_maxafr(void)
 MAXAFR_EXIT:;
     if (flag || (flagbyte9 & FLAGBYTE9_EGTADD)) { /* maxAFR or EGT */
         SSEM0SEI;
-        *port_maxafr |= pin_maxafr;
+        GPIO_ON(maxafr);
         CSEM0CLI;
     } else {
         SSEM0SEI;
-        *port_maxafr &= ~pin_maxafr;
+        GPIO_OFF(maxafr);
         CSEM0CLI;
     }
 
