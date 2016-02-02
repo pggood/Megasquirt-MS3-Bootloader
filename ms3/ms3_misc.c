@@ -3982,7 +3982,7 @@ void shifter()
         // state machine
         if (shift_cut_phase == 0) {
             if ((outpc.rpm > ram5.shift_cut_rpm) && (outpc.tps > ram5.shift_cut_tps) &&   // base conditions AND
-                ((pin_shift_cut_in && (( *port_shift_cut_in & pin_shift_cut_in) == pin_shift_cut_match))  // button pressed
+                (GPIO_ACTIVE(shift_cut_in)  // button pressed
                  || ((ram5.shift_cut & SHIFT_CUT_AUTO) && (outpc.gear) && (outpc.gear < 6) && (outpc.rpm > ram5.shift_cut_rpmauto[outpc.gear - 1])))) { // OR auto
                 shift_cut_phase = 1;
                 SSEM0SEI;
@@ -4020,7 +4020,7 @@ void shifter()
         }
         else if ((shift_cut_phase == 4) && (shift_cut_timer == 0)) {
             //check button not already pressed
-            if (pin_shift_cut_in && (( *port_shift_cut_in & pin_shift_cut_in) != pin_shift_cut_match)) {
+            if (GPIO_ACTIVE(shift_cut_in)) {
                 shift_cut_phase = 0; // back to the start
             }
         }

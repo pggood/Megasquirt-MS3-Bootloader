@@ -1567,7 +1567,7 @@ void main_init(void)
 
     /* Initialize CAN comms */
     // can_reset flag set above when flagbyte3 cleared
-        CANid = ram4.mycan_id;
+    CANid = ram4.mycan_id;
     CanInit();
     for (ix = 0 ; ix < 16 ; ix++) {
         can_err_cnt[ix] = 0;
@@ -2668,8 +2668,8 @@ Typical digout list
     // Shifter
     if (ram5.shift_cut & SHIFT_CUT_ON) {
         unsigned char tmp_opt;
-        generic_digin_setup(&port_shift_cut_in, &pin_shift_cut_in, &pin_shift_cut_match, 81, ram5.shift_cut_in & 0x1f, 32);
-        pin_shift_cut_match = 0;
+        generic_digin_setup(&port_shift_cut_in, &pin_shift_cut_in, &pin_match_shift_cut_in, 81, ram5.shift_cut_in & 0x1f, 32);
+        pin_match_shift_cut_in = 0;
         shift_cut_phase = 0;
 
         // now check for solenoid output
@@ -5044,7 +5044,7 @@ void pinport_init()
     pin_ac_in = 0;
     pin_fanctl_out = 0;
     pin_shift_cut_in = 0;
-    pin_shift_cut_match = 0;
+    pin_match_shift_cut_in = 0;
     pin_shift_cut_out = 0;
     pin_dualfuel = 0;
     pin_tsw_ob = 0;
