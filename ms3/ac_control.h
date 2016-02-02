@@ -12,14 +12,14 @@
 #define TURN_AC_OFF() \
                     do { \
                         SSEM0SEI; \
-                        GPIO_OFF(port_ac_out, pin_ac_out); \
+                        GPIO_OFF(ac_out); \
                         CSEM0CLI; \
                     } while (0)
 
 #define TURN_AC_ON() \
                     do { \
                         SSEM0SEI; \
-                        GPIO_ON(port_ac_out, pin_ac_out); \
+                        GPIO_ON(ac_out); \
                         CSEM0CLI; \
                     } while (0)
 

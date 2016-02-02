@@ -11,14 +11,14 @@
 #define TURN_FAST_IDLE_OFF() \
                     do { \
                         SSEM0SEI; \
-                        GPIO_OFF(port_idleonoff, pin_idleonoff); \
+                        GPIO_OFF(idleonoff); \
                         CSEM0CLI; \
                     } while (0)
 
 #define TURN_FAST_IDLE_ON() \
                     do { \
                         SSEM0SEI; \
-                        GPIO_ON(port_idleonoff, pin_idleonoff); \
+                        GPIO_ON(idleonoff); \
                         CSEM0CLI; \
                     } while (0)
 

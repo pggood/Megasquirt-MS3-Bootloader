@@ -159,12 +159,14 @@ void fan_ctl_idleup(void)
     if (ram4.fanctl_settings & 0x80) {
         if ((ram4.fanctl_opt2 & 0x01) == 0) { 
             if ((outpc.rpm < 3) || (flagbyte2 & flagbyte2_crank_ok)) { // don't run when engine stalled or just after start
-                TURN_FAN_OFF_UPDATE_STATUS();
+                TURN_FAN_OFF();
+                SET_FAN_STATUS_OFF(); 
                 return;
             }
         } else { // do
             if ((outpc.engine & ENGINE_CRANK) || (outpc.batt < MIN_BATTERY_VOLTAGE_FOR_FAN)) {
-                TURN_FAN_OFF_UPDATE_STATUS(); // but off when cranking
+                TURN_FAN_OFF(); // but off when cranking
+                SET_FAN_STATUS_OFF(); 
                 return;
             }
         }
@@ -195,7 +197,8 @@ void fan_ctl_idleup(void)
             }
 
             if (fan_disable) {
-                TURN_FAN_OFF_UPDATE_STATUS();
+                TURN_FAN_OFF();
+                SET_FAN_STATUS_OFF(); 
             }
         }
 
@@ -217,7 +220,8 @@ void fan_ctl_idleup(void)
             }
             else if ((fan_idleup_timer >= ram4.fanctl_idleup_delay) && (!fan_disable))
             {
-                TURN_FAN_ON_UPDATE_STATUS();
+                TURN_FAN_ON();
+                SET_FAN_STATUS_ON(); 
                 flagbyte16 |= FLAGBYTE16_FAN_ENABLE;
                 flagbyte25 &= ~FLAGBYTE25_IDLE_TEMPDISABLE;
             }
@@ -237,7 +241,8 @@ void fan_ctl_idleup(void)
             }
             else if (fan_idleup_timer >= ram4.fanctl_idleup_delay)
             {
-                TURN_FAN_OFF_UPDATE_STATUS();
+                TURN_FAN_OFF();
+                SET_FAN_STATUS_OFF(); 
                 flagbyte16 &= ~FLAGBYTE16_FAN_ENABLE;
             }
         }

@@ -6,8 +6,11 @@
 #define BIT_ON(variable, bit) (variable) |= (bit)
 #define BIT_OFF(variable, bit) (variable) &= ~(bit)
 
-#define GPIO_ON(port, pin)  *(port) |= (pin)
-#define GPIO_OFF(port, pin) *(port) &= ~(pin)
+#define GPIO_ON(gpio) \
+            do {*(port_ ## gpio) |= (pin_ ## gpio);} while (0)
+
+#define GPIO_OFF(gpio) \
+            do {*(port_ ## gpio) &= ~(pin_ ## gpio);} while (0)
 
 #define BIT(x) (twopow[x])
 

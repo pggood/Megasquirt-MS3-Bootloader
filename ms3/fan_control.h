@@ -16,36 +16,23 @@
 #define SET_FAN_STATUS_ON() BIT_ON(outpc.status6, STATUS6_FAN)
 #define SET_FAN_STATUS_OFF() BIT_OFF(outpc.status6, STATUS6_FAN)
 
-#define TURN_FAN_OFF() \
+#define TURN_FAN_ON() \
                     do { \
                         SSEM0SEI; \
-                        GPIO_OFF(port_fanctl_out, pin_fanctl_out); \
+                        GPIO_ON(fanctl_out); \
                         CSEM0CLI; \
                     } while (0)
 
-#define TURN_FAN_OFF_UPDATE_STATUS() \
+#define TURN_FAN_OFF() \
                     do { \
-                        TURN_FAN_OFF(); \
-                        SET_FAN_STATUS_OFF(); \
+                        SSEM0SEI; \
+                        GPIO_OFF(fanctl_out); \
+                        CSEM0CLI; \
                     } while (0)
 
 #define TURN_FAN_OFF_WITHOUT_DISABLING_INTS() \
                     do { \
-                        GPIO_OFF(port_fanctl_out, pin_fanctl_out); \
-                    } while (0)
-
-#define TURN_FAN_ON() \
-                    do { \
-                        SSEM0SEI; \
-                        GPIO_ON(port_fanctl_out, pin_fanctl_out); \
-                        CSEM0CLI; \
-                    } while (0)
-
-
-#define TURN_FAN_ON_UPDATE_STATUS() \
-                    do { \
-                        TURN_FAN_ON(); \
-                        SET_FAN_STATUS_ON(); \
+                        GPIO_OFF(fanctl_out); \
                     } while (0)
 
 #endif /* __FAN_CONTROL_H__ */
