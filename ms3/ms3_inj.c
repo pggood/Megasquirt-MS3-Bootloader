@@ -2975,9 +2975,9 @@ void main_fuel_calcs(long * lsum1, long * lsum2)
             outpc.ltt_cor = ltt;
             gammae1 = ((long)gammae1 * (1000UL + ltt)) / 1000UL;
 //            *lsum1 = (*lsum1  * (1000UL + ltt)) / 1000UL; // this overflows at 43ms
-            l = ( *lsum1  * (long)ltt) / 1000L;
+            l = (*lsum1  * (long)ltt) / 1000L;
             *lsum1 += l;
-            l = ( *lsum2  * (long)ltt) / 1000L;
+            l = (*lsum2  * (long)ltt) / 1000L;
             *lsum2 += l;
         }
 
@@ -3697,15 +3697,11 @@ void injpwms(void)
         }
     }
 
-INJPWM_COM:;
+INJPWM_COM:
 
     {
-        unsigned int t1;
-        t1 = (unsigned int)InjPWMPd1 * InjPWMDty1;
-        t1 /= 100; /* <- check this out for lousy assembly output */
-        pwmd1 = t1;
-
-        pwmd2 = ((unsigned int)InjPWMPd2 * InjPWMDty2) / 100;
+        pwmd1 = PERCENT_TO_OTHER_SCALE(InjPWMDty1, InjPWMPd1);
+        pwmd2 = PERCENT_TO_OTHER_SCALE(InjPWMDty2, InjPWMPd2);
     }
 }
 

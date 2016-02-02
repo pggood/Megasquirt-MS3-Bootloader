@@ -17,5 +17,10 @@
 #define GPIO_ACTIVE(gpio) \
             (pin_ ## gpio  && ((*port_ ## gpio & pin_ ## gpio) == pin_match_ ## gpio))
 
+/* Converts from a percentage into some other scale. Doesn't 
+ * do any rounding.
+ */
+#define PERCENT_TO_OTHER_SCALE(percentage, other_scale) ((((unsigned int)(percentage) * (other_scale))) / 100)
+
 
 #endif /* __UTILS_H__ */

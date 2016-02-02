@@ -271,7 +271,8 @@ void idle_test_mode(void)
         if (pos_tmp > 100) {
             pos_tmp = 100;
         }
-        pos_tmp = (pos_tmp * 256) / 100;        // means user enters 0-100% // sensible code with temp var, crap without
+        pos_tmp = PERCENT_TO_OTHER_SCALE(pos_tmp, 256); // means user enters 0-100% // sensible code with temp var, crap without
+        // XXX why not just scale to 0 - 255?
         if (pos_tmp > 255) {
             pos_tmp = 255;
         }

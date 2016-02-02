@@ -113,7 +113,7 @@ static void boost_ctl_cl(int channel, int lowerlimit, int Kp, int Ki, int Kd, un
 
             /* traction control down-scaling */
             if (tc_boost != 100) {
-            targ_load = outpc.baro + (int) (((targ_load - outpc.baro) * (long)tc_boost) / 100);
+                targ_load = outpc.baro + (int) (((targ_load - outpc.baro) * (long)tc_boost) / 100);
             }
 
             start_duty = intrp_2dctable(outpc.rpm, targ_load, 8, 8,
@@ -351,11 +351,7 @@ static void boost_ctl_ol(int channel, unsigned char coldduty)
                 int tmp_duty;
                 tmp_duty = boost_ctl_duty[channel] += tc_boost_duty_delta;
                 /* rail to 0-255 */
-                if (tmp_duty < 0) {
-                    tmp_duty = 0;
-                } else if (tmp_duty > 255) {
-                    tmp_duty = 255;
-                }
+                LIMIT(tmp_duty, 0, 255);
                 boost_ctl_duty[channel] = (unsigned char)tmp_duty;
             }
         }
@@ -447,9 +443,9 @@ void boost_ctl(void)
     }
 
     if ((ram4.boost_ctl_pwm & 0x30) == 0x10) { // hardware PWM
-        *boostport = ((unsigned int)outpc.boostduty * 255) / 100; // uses 0-255 scale (vs. genpwm uses 0-100)
+        *boostport = PERCENT_TO_OTHER_SCALE(outpc.boostduty, 255); // uses 0-255 scale (vs. genpwm uses 0-100)
         if (ram5.boost_ctl_settings2 & BOOST_CTL_ON) {
-            *port_boost2 = ((unsigned int)outpc.boostduty2 * 255) / 100;
+            *port_boost2 = PERCENT_TO_OTHER_SCALE(outpc.boostduty2, 255);
         }
     }
     // software pwms are picked up by swpwm code
