@@ -1964,7 +1964,7 @@ void io_pwm_outs()
      **************************************************************************/
     int i;
     unsigned char duty;
-    unsigned int max, trig, trig2, freq;
+    unsigned int max, trig, freq;
     RPAGE = RPAGE_VARS1;
 
     /* Calculate PWM clock rate */
@@ -1978,12 +1978,7 @@ void io_pwm_outs()
 
                 trig = (100000000UL / v1.io_pwmclk[0]) / freq;
 
-                trig2 = trig >> 1;
-                if (trig & 1) {
-                    trig = trig2 + 1; /* This gains us an extra bit of duty precision */
-                } else {
-                    trig = trig2;
-                }
+                trig = (trig + 1)/2;
                 v1.io_max_on[i] = trig;
                 v1.io_max_off[i] = trig;
                 
