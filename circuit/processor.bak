@@ -1,0 +1,61 @@
+EESchema Schematic File Version 2
+LIBS:mpxh6400
+LIBS:transistor
+LIBS:Jaguar
+LIBS:power
+LIBS:device
+LIBS:transistors
+LIBS:conn
+LIBS:linear
+LIBS:regul
+LIBS:74xx
+LIBS:cmos4000
+LIBS:adc-dac
+LIBS:memory
+LIBS:xilinx
+LIBS:special
+LIBS:microcontrollers
+LIBS:dsp
+LIBS:microchip
+LIBS:analog_switches
+LIBS:motorola
+LIBS:texas
+LIBS:intel
+LIBS:audio
+LIBS:interface
+LIBS:digital-audio
+LIBS:philips
+LIBS:display
+LIBS:cypress
+LIBS:siliconi
+LIBS:opto
+LIBS:atmel
+LIBS:contrib
+LIBS:valves
+LIBS:ms3-cache
+EELAYER 27 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date "25 oct 2014"
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L MC9S12XDP512 U$1?
+U 1 1 544BF2E8
+P 5500 3700
+F 0 "U$1?" H 5200 4000 50  0000 L BNN
+F 1 "MC9S12XDP512" H 5200 3300 50  0000 L BNN
+F 2 "mc9s12xdp512-LQFP112" H 5500 3850 50  0001 C CNN
+F 3 "~" H 5500 3700 60  0000 C CNN
+	1    5500 3700
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC
